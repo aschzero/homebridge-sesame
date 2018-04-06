@@ -68,7 +68,7 @@ class LockAccessory {
   }
 
   getLockState(callback): void {
-    this.lock.getStatus().then((options) => {
+    this.lock.getStatus().then(() => {
       if (this.lock.isUnlocked) {
         this.log(`${this.lock.nickname} is unlocked`);
         callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
@@ -95,7 +95,7 @@ class LockAccessory {
   setLockState(targetState, callback): void {
     let lockMechanismService = this.getOrCreateLockMechanismService();
 
-    this.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}...`);
+    this.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}`);
 
     this.lock.control(targetState).then(() => {
       if (targetState == Hap.Characteristic.LockCurrentState.SECURED) {

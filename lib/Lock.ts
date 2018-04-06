@@ -33,7 +33,7 @@ class Lock {
     this.battery = properties.battery;
   }
 
-  getStatus(): Promise<any> {
+  getStatus(): Promise<void> {
     let options = {
       uri: `${APIConfig.baseUri}/sesames/${this.deviceId}`,
       method: 'GET',
@@ -46,11 +46,8 @@ class Lock {
 
     return new Promise((resolve, reject) => {
       Request(options).then((response) => {
-        let properties = response as LockProperties;
-
-        this.setProperties(properties);
-
-        resolve(options);
+        this.setProperties(response as LockProperties);
+        resolve();
       }).catch((err) => {
         reject(err);
       });

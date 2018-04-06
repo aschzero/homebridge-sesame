@@ -34,6 +34,8 @@ class Authenticator {
       }
     }
 
+    this.log('Authenticating with Sesame');
+
     return new Promise((resolve, reject) => {
       Request(options).then((response) => {
         let authenticationResponse = response as AuthenticationResponse;
@@ -50,8 +52,8 @@ class Authenticator {
     });
   }
 
-  getLocks(token: string): Promise<LockProperties[]> {
-    this.log('Retrieving locks...');
+  getLocks(): Promise<LockProperties[]> {
+    this.log('Retrieving locks');
 
     let options = {
       uri: `${APIConfig.baseUri}/sesames`,
