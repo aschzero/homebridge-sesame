@@ -43,9 +43,16 @@ The plugin will automaticaly discover your connected locks when homebridge is re
 * **platform** - Set to "Sesame"
 * **email/password** - Your login credentials
 
-## Functionality
+## Features
 
 * Automatic discovery of all connected locks
 * Lock and unlock
 * Reports battery percentage levels
 * Alerting when battery runs low
+
+## Why a new plugin if another one already exists?
+This plugin aims to be a better alternative by offering the following enhancements:
+* Runs as a homebridge platform instead of being a single accessory, which has the limitation of configuring only one device. Platforms allow automatic discovery of multiple accessories without any extra configuration.
+* Improved error handling and error messaging.
+* Noticeable performance improvements.
+* Substantially fewer API calls.
