@@ -5,7 +5,6 @@ const LockAccessory_1 = require("./LockAccessory");
 const HAP_1 = require("./HAP");
 class LockPlatform {
     constructor(log, config, platform) {
-        this.name = config['name'];
         this.log = log;
         this.platform = platform;
         this.accessories = [];

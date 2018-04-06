@@ -15,7 +15,6 @@ class LockPlatform {
   registeredAccessories: Map<string, Accessory>;
 
   constructor(log: Log, config: AccessoryConfig, platform: Platform) {
-    this.name = config['name'];
     this.log = log;
     this.platform = platform;
     this.accessories = [];

@@ -30,7 +30,6 @@ Example homebridge configuration file:
   "platforms": [
     {
       "platform": "Sesame",
-      "name": "Sesame",
       "email": "my@email.com",
       "password": "password123"
     }
@@ -42,7 +41,6 @@ The plugin will automaticaly discover your connected locks when homebridge is re
 
 ### Required Fields
 * **platform** - Set to "Sesame"
-* **name** - Name of the accessories that appears in HomeKit
 * **email/password** - Your login credentials
 
 ## Functionality
