@@ -1,0 +1,6 @@
+{
+  "baseUri": "https://api.candyhouse.co/v1",
+  "defaultHeaders": {
+    "Content-Type": "application/json"
+  }
+}

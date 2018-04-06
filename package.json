@@ -1,0 +1,34 @@
+{
+	"name": "homebridge-sesame",
+	"version": "1.0.0",
+	"description": "Homebridge plugin for the Sesame smart lock",
+	"main": "./dist/index.js",
+	"author": "Andrew Schaper",
+	"license": "MIT",
+	"dependencies": {
+		"@types/request": "^2.47.0",
+		"@types/request-promise": "^4.1.41",
+		"request": "^2.85.0",
+		"request-promise": "^4.2.2",
+		"typescript": "^2.8.1",
+		"ws": "^5.0.0"
+	},
+	"engines": {
+		"node": ">=0.12.0",
+		"homebridge": ">=0.2.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aschaper/homebridge-sesame"
+	},
+	"scripts": {
+		"prepublishOnly": "tsc",
+		"build": "tsc",
+		"homebridge": "homebridge"
+	},
+	"keywords": [
+		"sesame",
+		"homebridge-sesame",
+		"homebridge-plugin"
+	]
+}
