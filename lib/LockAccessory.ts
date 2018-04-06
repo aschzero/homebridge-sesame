@@ -119,9 +119,9 @@ class LockAccessory {
       .getCharacteristic(Hap.Characteristic.ChargingState)
       .on('get', this.getBatteryChargingState.bind(this));
 
-      batteryService
-        .getCharacteristic(Hap.Characteristic.StatusLowBattery)
-        .on('get', this.getLowBatteryStatus.bind(this));
+    batteryService
+      .getCharacteristic(Hap.Characteristic.StatusLowBattery)
+      .on('get', this.getLowBatteryStatus.bind(this));
   }
 
   getBatteryLevel(callback): void {
