@@ -20,6 +20,7 @@ class LockAccessory {
 
     this.setupAccessoryInformationServiceCharacteristics();
     this.setupLockMechanismServiceCharacteristics();
+    this.setupBatteryServiceCharacteristics();
 
     this.accessory.updateReachability(true);
 
@@ -34,6 +35,16 @@ class LockAccessory {
     }
     
     return lockMechanismService;
+  }
+
+  getOrCreateBatteryService(): Service {
+    let batteryService = this.accessory.getService(Hap.Service.BatteryService);
+
+    if (!batteryService) {
+      batteryService = this.accessory.addService(Hap.Service.BatteryService, this.lock.nickname);
+    }
+    
+    return batteryService;
   }
 
   setupAccessoryInformationServiceCharacteristics(): void {
@@ -95,6 +106,38 @@ class LockAccessory {
       
       callback(null);
     });
+  }
+
+  setupBatteryServiceCharacteristics(): void {
+    let batteryService = this.getOrCreateBatteryService();
+
+    batteryService
+      .getCharacteristic(Hap.Characteristic.BatteryLevel)
+      .on('get', this.getBatteryLevel.bind(this));
+   
+    batteryService
+      .getCharacteristic(Hap.Characteristic.ChargingState)
+      .on('get', this.getBatteryChargingState.bind(this));
+
+      batteryService
+        .getCharacteristic(Hap.Characteristic.StatusLowBattery)
+        .on('get', this.getLowBatteryStatus.bind(this));
+  }
+
+  getBatteryLevel(callback): void {
+    callback(null, this.lock.battery);
+  }
+
+  getBatteryChargingState(callback): void {
+    callback(null, Hap.Characteristic.ChargingState.NOT_CHARGING);
+  }
+
+  getLowBatteryStatus(callback): void {
+    if (this.lock.battery <= 20) {
+      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
+    } else {
+      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
+    }
   }
 }
 
