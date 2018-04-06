@@ -10,8 +10,7 @@
 		"@types/request-promise": "^4.1.41",
 		"request": "^2.85.0",
 		"request-promise": "^4.2.2",
-		"typescript": "^2.8.1",
-		"ws": "^5.0.0"
+		"typescript": "^2.8.1"
 	},
 	"engines": {
 		"node": ">=0.12.0",
@@ -22,9 +21,7 @@
 		"url": "https://github.com/aschaper/homebridge-sesame"
 	},
 	"scripts": {
-		"prepublishOnly": "tsc",
-		"build": "tsc",
-		"homebridge": "homebridge"
+		"build": "tsc"
 	},
 	"keywords": [
 		"sesame",
