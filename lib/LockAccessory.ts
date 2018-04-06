@@ -11,12 +11,12 @@ class LockAccessory {
   lockProperties: LockProperties;
   accessory: Accessory;
 
-  constructor(accessory: Accessory, lockProperties: LockProperties, log: Log, token: string) {
+  constructor(accessory: Accessory, lockProperties: LockProperties, log: Log) {
     this.log = log;
     this.lockProperties = lockProperties;
     this.accessory = accessory;
 
-    this.lock = new Lock(token, lockProperties, log);
+    this.lock = new Lock(lockProperties, log);
 
     this.setupAccessoryInformationServiceCharacteristics();
     this.setupLockMechanismServiceCharacteristics();

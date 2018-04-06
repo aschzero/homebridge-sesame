@@ -3,9 +3,9 @@ import * as Request from 'request-promise';
 import { Log } from './interfaces/Log'
 import { LockProperties } from './interfaces/LockProperties'
 import { APIConfig } from './APIConfig'
+import { Authenticator } from './APIAuthenticator'
 
 class Lock {
-  token: string;
   deviceId: string;
   nickname: string;
   isUnlocked: boolean;
@@ -13,8 +13,7 @@ class Lock {
   battery: number;
   log: Log;
 
-  constructor(token: string, properties: LockProperties, log: Log) {
-    this.token = token;
+  constructor(properties: LockProperties, log: Log) {
     this.log = log;
 
     this.setProperties(properties);
@@ -40,7 +39,7 @@ class Lock {
       json: true,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': this.token
+        'X-Authorization': Authenticator.token
       }
     }
 
@@ -61,7 +60,7 @@ class Lock {
       json: true,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': this.token
+        'X-Authorization': Authenticator.token
       },
       body: {
         'type': (secure ? 'lock' : 'unlock')

@@ -6,20 +6,16 @@ import { AuthenticationResponse } from './interfaces/AuthenticationResponse';
 import { LockProperties } from './interfaces/LockProperties'
 import { APIConfig } from './APIConfig'
 
-class Authenticator {
+class APIAuthenticator {
   log: Log;
   email: string;
   password: string;
   token: string;
 
-  constructor(email: string, password: string, log: Log) {
+  authenticate(email: string, password: string, log: Log): Promise<AuthenticationResponse> {
     this.log = log;
     this.email = email;
     this.password = password;
-  }
-
-  authenticate(): Promise<AuthenticationResponse> {
-    this.log('Authenticating with Sesame...');
 
     let options = {
       uri: `${APIConfig.baseUri}/accounts/login`,
@@ -44,6 +40,8 @@ class Authenticator {
           throw Error('Unexpected response during authentication');
         }
 
+        this.token = authenticationResponse.authorization;
+
         resolve(authenticationResponse);
       }).catch((err) => {
         this.log(`Encountered an error when trying to get user token: ${err}`);
@@ -61,7 +59,7 @@ class Authenticator {
       json: true,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': token
+        'X-Authorization': this.token
       }
     }
     
@@ -76,4 +74,4 @@ class Authenticator {
   }
 }
 
-export { Authenticator }
+export const Authenticator = new APIAuthenticator();

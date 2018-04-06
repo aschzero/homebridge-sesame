@@ -1,7 +1,7 @@
 import { AccessoryConfig } from './interfaces/AccessoryConfig';
 import { Log } from './interfaces/Log';
 import { Platform } from './interfaces/Platform';
-import { Authenticator } from './Authenticator'
+import { Authenticator } from './APIAuthenticator'
 import { LockProperties } from './interfaces/LockProperties';
 import { Accessory } from './interfaces/Accessory';
 import { LockAccessory } from './LockAccessory';
@@ -30,14 +30,10 @@ class LockPlatform {
           throw Error('email and password fields are required in config');
         }
 
-        let authenticator = new Authenticator(email, password, this.log);
-
-        authenticator.authenticate().then((data) => {
-          authenticator.getLocks(data.authorization).then((locks) => {
-            locks.forEach((lock => {
-              this.addAccessory(lock, data.authorization);
-            }));
-          })
+        Authenticator.authenticate(email, password, this.log).then(() => {
+          return Authenticator.getLocks();
+        }).then((locks) => {
+          locks.forEach((lock => this.addAccessory(lock)));
         });
       });
     }
@@ -49,7 +45,7 @@ class LockPlatform {
     this.registeredAccessories.set(accessory.UUID, accessory);
   }
 
-  addAccessory(properties: LockProperties, token: string): void {
+  addAccessory(properties: LockProperties): void {
     let uuid: string = Hap.UUIDGen.generate(properties.nickname);
     let accessory: Accessory;
 
@@ -59,7 +55,7 @@ class LockPlatform {
       accessory = new Hap.Accessory(properties.nickname, uuid);
     }
 
-    let lockAccessory = new LockAccessory(accessory, properties, this.log, token);
+    let lockAccessory = new LockAccessory(accessory, properties, this.log);
 
     accessory.on('identify', (paired, callback) => {
       callback();
