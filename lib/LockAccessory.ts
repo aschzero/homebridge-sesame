@@ -63,33 +63,24 @@ class LockAccessory {
    
     lockMechanismService
       .getCharacteristic(Hap.Characteristic.LockTargetState)
-      .on('get', this.getLockTargetState.bind(this))
+      .on('get', this.getLockState.bind(this))
       .on('set', this.setLockState.bind(this));
   }
 
   getLockState(callback): void {
     this.lock.getStatus().then(() => {
       if (this.lock.isUnlocked) {
-        this.log(`${this.lock.nickname} is unlocked`);
+        this.log(this.lock.nickname, 'is unlocked');
         callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
       } else {
-        this.log(`${this.lock.nickname} is locked`);
+        this.log(this.lock.nickname, 'is locked');        
         callback(null, Hap.Characteristic.LockCurrentState.SECURED);
       }
-    }).catch((err) => {
+    })
+    .catch((err) => {
       this.log(err);
+      callback(err);
     });
-  }
-
-  getLockTargetState(callback): void {
-    // The target state is always immediately retrieved after getting
-    // the current lock state, so we're able to just read the isUnlocked
-    // property without making redundant requests to the API
-    if (this.lock.isUnlocked) {
-      callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
-    } else {
-      callback(null, Hap.Characteristic.LockCurrentState.SECURED);
-    }
   }
 
   setLockState(targetState, callback): void {
@@ -105,6 +96,10 @@ class LockAccessory {
       }
       
       callback(null);
+    })
+    .catch((err) => {
+      this.log(err);
+      callback(err);
     });
   }
 
