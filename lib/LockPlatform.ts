@@ -32,6 +32,9 @@ class LockPlatform {
           return Authenticator.getLocks();
         }).then((locks) => {
           locks.forEach((lock => this.addAccessory(lock)));
+        })
+        .catch((err) => {
+          this.log(`Encountered an error when trying to retrieve locks: ${err}`);
         });
       });
     }
