@@ -1,19 +1,17 @@
 
 import * as Request from 'request-promise';
 
-import { Log } from './interfaces/Log';
+import { Logger } from './HSLogger';
 import { AuthenticationResponse } from './interfaces/AuthenticationResponse';
 import { LockProperties } from './interfaces/LockProperties'
 import { APIConfig } from './APIConfig'
 
 class APIAuthenticator {
-  log: Log;
   email: string;
   password: string;
   token: string;
 
-  authenticate(email: string, password: string, log: Log): Promise<AuthenticationResponse> {
-    this.log = log;
+  authenticate(email: string, password: string): Promise<AuthenticationResponse> {
     this.email = email;
     this.password = password;
 
@@ -30,7 +28,7 @@ class APIAuthenticator {
       }
     }
 
-    this.log('Authenticating with Sesame');
+    Logger.log('Authenticating with Sesame');
 
     return new Promise((resolve, reject) => {
       Request(options).then((response) => {
@@ -44,14 +42,14 @@ class APIAuthenticator {
 
         resolve(authenticationResponse);
       }).catch((err) => {
-        this.log(`Encountered an error when trying to get user token: ${err}`);
+        Logger.log(`Encountered an error when trying to get user token: ${err}`);
         reject(err);
       });
     });
   }
 
   getLocks(): Promise<LockProperties[]> {
-    this.log('Retrieving locks');
+    Logger.log('Retrieving locks');
 
     let options = {
       uri: `${APIConfig.baseUri}/sesames`,
@@ -67,7 +65,7 @@ class APIAuthenticator {
       Request(options).then((response) => {
         resolve(response.sesames as LockProperties[]);
       }).catch((err) => {
-        this.log(`Encountered an error when trying to get locks: ${err}`);
+        Logger.log(`Encountered an error when trying to get locks: ${err}`);
         reject(err);
       });
     });

@@ -1,22 +1,20 @@
 import { Lock } from './Lock';
 import { Accessory } from './interfaces/Accessory';
 import { Service } from './interfaces/Service';
-import { Log } from './interfaces/Log';
 import { LockProperties } from './interfaces/LockProperties';
 import { Hap } from './HAP'
+import { Logger } from './HSLogger';
 
 class LockAccessory {
-  log: Log;
   lock: Lock;
   lockProperties: LockProperties;
   accessory: Accessory;
 
-  constructor(accessory: Accessory, lockProperties: LockProperties, log: Log) {
-    this.log = log;
+  constructor(accessory: Accessory, lockProperties: LockProperties) {
     this.lockProperties = lockProperties;
     this.accessory = accessory;
 
-    this.lock = new Lock(lockProperties, log);
+    this.lock = new Lock(lockProperties);
 
     this.setupAccessoryInformationServiceCharacteristics();
     this.setupLockMechanismServiceCharacteristics();
@@ -24,7 +22,7 @@ class LockAccessory {
 
     this.accessory.updateReachability(true);
 
-    this.log(`Created accessory for lock "${this.lock.nickname}"`);
+    Logger.log(`Created accessory for ${this.lock.nickname}`);
   }
 
   getOrCreateLockMechanismService(): Service {
@@ -70,15 +68,15 @@ class LockAccessory {
   getLockState(callback): void {
     this.lock.getStatus().then(() => {
       if (this.lock.isUnlocked) {
-        this.log(this.lock.nickname, 'is unlocked');
+        Logger.log(this.lock.nickname, 'is unlocked');
         callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
       } else {
-        this.log(this.lock.nickname, 'is locked');        
+        Logger.log(this.lock.nickname, 'is locked');        
         callback(null, Hap.Characteristic.LockCurrentState.SECURED);
       }
     })
     .catch((err) => {
-      this.log(err);
+      Logger.log(err);
       callback(err);
     });
   }
@@ -86,7 +84,7 @@ class LockAccessory {
   setLockState(targetState, callback): void {
     let lockMechanismService = this.getOrCreateLockMechanismService();
 
-    this.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}`);
+    Logger.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}`);
 
     this.lock.control(targetState).then(() => {
       if (targetState == Hap.Characteristic.LockCurrentState.SECURED) {
@@ -98,7 +96,7 @@ class LockAccessory {
       callback(null);
     })
     .catch((err) => {
-      this.log(err);
+      Logger.log(err);
       callback(err);
     });
   }

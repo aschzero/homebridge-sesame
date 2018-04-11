@@ -1,9 +1,9 @@
 import * as Request from 'request-promise';
 
-import { Log } from './interfaces/Log'
-import { LockProperties } from './interfaces/LockProperties'
-import { APIConfig } from './APIConfig'
-import { Authenticator } from './APIAuthenticator'
+import { Logger } from './HSLogger';
+import { LockProperties } from './interfaces/LockProperties';
+import { APIConfig } from './APIConfig';
+import { Authenticator } from './APIAuthenticator';
 
 class Lock {
   deviceId: string;
@@ -11,11 +11,8 @@ class Lock {
   isUnlocked: boolean;
   apiEnabled: boolean;
   battery: number;
-  log: Log;
 
-  constructor(properties: LockProperties, log: Log) {
-    this.log = log;
-
+  constructor(properties: LockProperties) {
     this.setProperties(properties);
   }
 

@@ -1,20 +1,21 @@
+import { Log } from "./interfaces/Log";
+import { Logger } from './HSLogger';
 import { AccessoryConfig } from './interfaces/AccessoryConfig';
-import { Log } from './interfaces/Log';
 import { Platform } from './interfaces/Platform';
 import { Authenticator } from './APIAuthenticator'
 import { LockProperties } from './interfaces/LockProperties';
 import { Accessory } from './interfaces/Accessory';
 import { LockAccessory } from './LockAccessory';
-import { Hap } from './HAP'
+import { Hap } from './HAP';
 
 class LockPlatform {
   platform: Platform;
-  log: Log;
   accessories: Array<Accessory>;
   registeredAccessories: Map<string, Accessory>;
 
   constructor(log: Log, config: AccessoryConfig, platform: Platform) {
-    this.log = log;
+    Logger.setLogger(log);
+
     this.platform = platform;
     this.accessories = [];
     this.registeredAccessories = new Map();
@@ -28,13 +29,13 @@ class LockPlatform {
           throw Error('email and password fields are required in config');
         }
 
-        Authenticator.authenticate(email, password, this.log).then(() => {
+        Authenticator.authenticate(email, password).then(() => {
           return Authenticator.getLocks();
         }).then((locks) => {
           locks.forEach((lock => this.addAccessory(lock)));
         })
         .catch((err) => {
-          this.log(`Encountered an error when trying to retrieve locks: ${err}`);
+          Logger.log(`Encountered an error when trying to retrieve locks: ${err}`);
         });
       });
     }
@@ -56,7 +57,7 @@ class LockPlatform {
       accessory = new Hap.Accessory(properties.nickname, uuid);
     }
 
-    let lockAccessory = new LockAccessory(accessory, properties, this.log);
+    let lockAccessory = new LockAccessory(accessory, properties);
 
     accessory.on('identify', (paired, callback) => {
       callback();
