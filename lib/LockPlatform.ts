@@ -8,7 +8,6 @@ import { LockAccessory } from './LockAccessory';
 import { Hap } from './HAP'
 
 class LockPlatform {
-  name: string;
   platform: Platform;
   log: Log;
   accessories: Array<Accessory>;
