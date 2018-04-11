@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Request = require("request-promise");
+const HSLogger_1 = require("./HSLogger");
 const APIConfig_1 = require("./APIConfig");
 class APIAuthenticator {
-    authenticate(email, password, log) {
-        this.log = log;
+    authenticate(email, password) {
         this.email = email;
         this.password = password;
         let options = {
@@ -19,7 +19,7 @@ class APIAuthenticator {
                 'password': this.password
             }
         };
-        this.log('Authenticating with Sesame');
+        HSLogger_1.Logger.log('Authenticating with Sesame');
         return new Promise((resolve, reject) => {
             Request(options).then((response) => {
                 let authenticationResponse = response;
@@ -29,13 +29,13 @@ class APIAuthenticator {
                 this.token = authenticationResponse.authorization;
                 resolve(authenticationResponse);
             }).catch((err) => {
-                this.log(`Encountered an error when trying to get user token: ${err}`);
+                HSLogger_1.Logger.log(`Encountered an error when trying to get user token: ${err}`);
                 reject(err);
             });
         });
     }
     getLocks() {
-        this.log('Retrieving locks');
+        HSLogger_1.Logger.log('Retrieving locks');
         let options = {
             uri: `${APIConfig_1.APIConfig.baseUri}/sesames`,
             method: 'GET',
@@ -49,7 +49,7 @@ class APIAuthenticator {
             Request(options).then((response) => {
                 resolve(response.sesames);
             }).catch((err) => {
-                this.log(`Encountered an error when trying to get locks: ${err}`);
+                HSLogger_1.Logger.log(`Encountered an error when trying to get locks: ${err}`);
                 reject(err);
             });
         });

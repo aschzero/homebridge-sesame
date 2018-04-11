@@ -4,8 +4,7 @@ const Request = require("request-promise");
 const APIConfig_1 = require("./APIConfig");
 const APIAuthenticator_1 = require("./APIAuthenticator");
 class Lock {
-    constructor(properties, log) {
-        this.log = log;
+    constructor(properties) {
         this.setProperties(properties);
     }
     setProperties(properties) {

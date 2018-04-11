@@ -9,7 +9,7 @@ class Authenticator {
         this.password = password;
     }
     authenticate() {
-        this.log('Authenticating with Sesame...');
+        Logger.log('Authenticating with Sesame...');
         let options = {
             uri: `${APIConfig_1.APIConfig.baseUri}/accounts/login`,
             headers: {
@@ -30,13 +30,13 @@ class Authenticator {
                 }
                 resolve(authenticationResponse);
             }).catch((err) => {
-                this.log(`Encountered an error when trying to get user token: ${err}`);
+                Logger.log(`Encountered an error when trying to get user token: ${err}`);
                 reject(err);
             });
         });
     }
     getLocks(token) {
-        this.log('Retrieving locks...');
+        Logger.log('Retrieving locks...');
         let options = {
             uri: `${APIConfig_1.APIConfig.baseUri}/sesames`,
             method: 'GET',
@@ -50,7 +50,7 @@ class Authenticator {
             Request(options).then((response) => {
                 resolve(response.sesames);
             }).catch((err) => {
-                this.log(`Encountered an error when trying to get locks: ${err}`);
+                Logger.log(`Encountered an error when trying to get locks: ${err}`);
                 reject(err);
             });
         });

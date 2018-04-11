@@ -2,17 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Lock_1 = require("./Lock");
 const HAP_1 = require("./HAP");
+const HSLogger_1 = require("./HSLogger");
 class LockAccessory {
-    constructor(accessory, lockProperties, log) {
-        this.log = log;
+    constructor(accessory, lockProperties) {
         this.lockProperties = lockProperties;
         this.accessory = accessory;
-        this.lock = new Lock_1.Lock(lockProperties, log);
+        this.lock = new Lock_1.Lock(lockProperties);
         this.setupAccessoryInformationServiceCharacteristics();
         this.setupLockMechanismServiceCharacteristics();
         this.setupBatteryServiceCharacteristics();
         this.accessory.updateReachability(true);
-        this.log(`Created accessory for lock "${this.lock.nickname}"`);
+        HSLogger_1.Logger.log(`Created accessory for ${this.lock.nickname}`);
     }
     getOrCreateLockMechanismService() {
         let lockMechanismService = this.accessory.getService(HAP_1.Hap.Service.LockMechanism);
@@ -41,37 +41,28 @@ class LockAccessory {
             .on('get', this.getLockState.bind(this));
         lockMechanismService
             .getCharacteristic(HAP_1.Hap.Characteristic.LockTargetState)
-            .on('get', this.getLockTargetState.bind(this))
+            .on('get', this.getLockState.bind(this))
             .on('set', this.setLockState.bind(this));
     }
     getLockState(callback) {
         this.lock.getStatus().then(() => {
             if (this.lock.isUnlocked) {
-                this.log(`${this.lock.nickname} is unlocked`);
+                HSLogger_1.Logger.log(this.lock.nickname, 'is unlocked');
                 callback(null, HAP_1.Hap.Characteristic.LockCurrentState.UNSECURED);
             }
             else {
-                this.log(`${this.lock.nickname} is locked`);
+                HSLogger_1.Logger.log(this.lock.nickname, 'is locked');
                 callback(null, HAP_1.Hap.Characteristic.LockCurrentState.SECURED);
             }
-        }).catch((err) => {
-            this.log(err);
+        })
+            .catch((err) => {
+            HSLogger_1.Logger.log(err);
+            callback(err);
         });
-    }
-    getLockTargetState(callback) {
-        // The target state is always immediately retrieved after getting
-        // the current lock state, so we're able to just read the isUnlocked
-        // property without making redundant requests to the API
-        if (this.lock.isUnlocked) {
-            callback(null, HAP_1.Hap.Characteristic.LockCurrentState.UNSECURED);
-        }
-        else {
-            callback(null, HAP_1.Hap.Characteristic.LockCurrentState.SECURED);
-        }
     }
     setLockState(targetState, callback) {
         let lockMechanismService = this.getOrCreateLockMechanismService();
-        this.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}`);
+        HSLogger_1.Logger.log(`${targetState ? 'Locking' : 'Unlocking'} ${this.lock.nickname}`);
         this.lock.control(targetState).then(() => {
             if (targetState == HAP_1.Hap.Characteristic.LockCurrentState.SECURED) {
                 lockMechanismService.setCharacteristic(HAP_1.Hap.Characteristic.LockCurrentState, HAP_1.Hap.Characteristic.LockCurrentState.SECURED);
@@ -80,6 +71,10 @@ class LockAccessory {
                 lockMechanismService.setCharacteristic(HAP_1.Hap.Characteristic.LockCurrentState, HAP_1.Hap.Characteristic.LockCurrentState.UNSECURED);
             }
             callback(null);
+        })
+            .catch((err) => {
+            HSLogger_1.Logger.log(err);
+            callback(err);
         });
     }
     setupBatteryServiceCharacteristics() {
