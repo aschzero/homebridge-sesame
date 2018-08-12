@@ -4,7 +4,7 @@ import { Logger } from './HSLogger';
 import { LockAccessory } from './LockAccessory';
 import { Accessory, AccessoryConfig, LockProperties, Log, Platform } from './types';
 
-class LockPlatform {
+export class LockPlatform {
   platform: Platform;
   accessories: Array<Accessory>;
   registeredAccessories: Map<string, Accessory>;
@@ -66,4 +66,3 @@ class LockPlatform {
   }
 }
 
-export { LockPlatform }

@@ -4,7 +4,7 @@ import { Hap } from './HAP';
 import { Logger } from './HSLogger';
 import { Lock } from './Lock';
 
-class LockAccessory {
+export class LockAccessory {
   lock: Lock;
   lockProperties: LockProperties;
   accessory: Accessory;
@@ -133,4 +133,3 @@ class LockAccessory {
   }
 }
 
-export { LockAccessory }

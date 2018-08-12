@@ -4,7 +4,7 @@ import { Authenticator } from './APIAuthenticator';
 import { APIConfig } from './APIConfig';
 import { LockProperties } from './types';
 
-class Lock {
+export class Lock {
   deviceId: string;
   nickname: string;
   isUnlocked: boolean;
@@ -74,5 +74,3 @@ class Lock {
     });
   }
 }
-
-export { Lock }
