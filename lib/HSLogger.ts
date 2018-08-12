@@ -1,4 +1,4 @@
-import { Log } from './interfaces/Log';
+import { Log } from './types';
 
 class HSLogger {
   public log: Log;

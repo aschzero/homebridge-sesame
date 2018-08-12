@@ -1,9 +1,8 @@
-import { Lock } from './Lock';
-import { Accessory } from './interfaces/Accessory';
-import { Service } from './interfaces/Service';
-import { LockProperties } from './interfaces/LockProperties';
-import { Hap } from './HAP'
+import { Accessory, LockProperties, Service } from './types';
+
+import { Hap } from './HAP';
 import { Logger } from './HSLogger';
+import { Lock } from './Lock';
 
 class LockAccessory {
   lock: Lock;
@@ -31,7 +30,7 @@ class LockAccessory {
     if (!lockMechanismService) {
       lockMechanismService = this.accessory.addService(Hap.Service.LockMechanism, this.lock.nickname);
     }
-    
+
     return lockMechanismService;
   }
 
@@ -41,7 +40,7 @@ class LockAccessory {
     if (!batteryService) {
       batteryService = this.accessory.addService(Hap.Service.BatteryService, this.lock.nickname);
     }
-    
+
     return batteryService;
   }
 
@@ -58,7 +57,7 @@ class LockAccessory {
     lockMechanismService
       .getCharacteristic(Hap.Characteristic.LockCurrentState)
       .on('get', this.getLockState.bind(this));
-   
+
     lockMechanismService
       .getCharacteristic(Hap.Characteristic.LockTargetState)
       .on('get', this.getLockState.bind(this))
@@ -71,7 +70,7 @@ class LockAccessory {
         Logger.log(this.lock.nickname, 'is unlocked');
         callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
       } else {
-        Logger.log(this.lock.nickname, 'is locked');        
+        Logger.log(this.lock.nickname, 'is locked');
         callback(null, Hap.Characteristic.LockCurrentState.SECURED);
       }
     })
@@ -92,7 +91,7 @@ class LockAccessory {
       } else {
         lockMechanismService.setCharacteristic(Hap.Characteristic.LockCurrentState, Hap.Characteristic.LockCurrentState.UNSECURED);
       }
-      
+
       callback(null);
     })
     .catch((err) => {
@@ -107,7 +106,7 @@ class LockAccessory {
     batteryService
       .getCharacteristic(Hap.Characteristic.BatteryLevel)
       .on('get', this.getBatteryLevel.bind(this));
-   
+
     batteryService
       .getCharacteristic(Hap.Characteristic.ChargingState)
       .on('get', this.getBatteryChargingState.bind(this));

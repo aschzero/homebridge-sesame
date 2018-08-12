@@ -1,10 +1,9 @@
-
 import * as Request from 'request-promise';
 
+import { APIConfig } from './APIConfig';
 import { Logger } from './HSLogger';
-import { AuthenticationResponse } from './interfaces/AuthenticationResponse';
-import { LockProperties } from './interfaces/LockProperties'
-import { APIConfig } from './APIConfig'
+import { AuthenticationResponse, LockProperties } from './types';
+
 
 class APIAuthenticator {
   email: string;
@@ -33,7 +32,7 @@ class APIAuthenticator {
     return new Promise((resolve, reject) => {
       Request(options).then((response) => {
         let authenticationResponse = response as AuthenticationResponse;
-        
+
         if (!authenticationResponse.authorization) {
           throw Error('Unexpected response during authentication');
         }
@@ -60,7 +59,7 @@ class APIAuthenticator {
         'X-Authorization': this.token
       }
     }
-    
+
     return new Promise((resolve, reject) => {
       Request(options).then((response) => {
         resolve(response.sesames as LockProperties[]);

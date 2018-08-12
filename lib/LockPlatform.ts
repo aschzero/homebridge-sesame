@@ -1,12 +1,8 @@
-import { Log } from "./interfaces/Log";
-import { Logger } from './HSLogger';
-import { AccessoryConfig } from './interfaces/AccessoryConfig';
-import { Platform } from './interfaces/Platform';
-import { Authenticator } from './APIAuthenticator'
-import { LockProperties } from './interfaces/LockProperties';
-import { Accessory } from './interfaces/Accessory';
-import { LockAccessory } from './LockAccessory';
+import { Authenticator } from './APIAuthenticator';
 import { Hap } from './HAP';
+import { Logger } from './HSLogger';
+import { LockAccessory } from './LockAccessory';
+import { Accessory, AccessoryConfig, LockProperties, Log, Platform } from './types';
 
 class LockPlatform {
   platform: Platform;
@@ -43,7 +39,7 @@ class LockPlatform {
 
   configureAccessory(accessory: Accessory): void {
     accessory.updateReachability(false);
-    
+
     this.registeredAccessories.set(accessory.UUID, accessory);
   }
 

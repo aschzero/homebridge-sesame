@@ -1,9 +1,8 @@
 import * as Request from 'request-promise';
 
-import { Logger } from './HSLogger';
-import { LockProperties } from './interfaces/LockProperties';
-import { APIConfig } from './APIConfig';
 import { Authenticator } from './APIAuthenticator';
+import { APIConfig } from './APIConfig';
+import { LockProperties } from './types';
 
 class Lock {
   deviceId: string;
@@ -22,7 +21,7 @@ class Lock {
     if (properties.device_id) {
       this.deviceId = properties.device_id;
     }
-    
+
     this.nickname = properties.nickname;
     this.isUnlocked = properties.is_unlocked;
     this.apiEnabled = properties.api_enabled;
@@ -63,7 +62,7 @@ class Lock {
         'type': (secure ? 'lock' : 'unlock')
       }
     }
-    
+
     return new Promise((resolve, reject) => {
       Request(options).then(() => {
         this.isUnlocked = !secure;
