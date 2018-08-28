@@ -1,39 +1,42 @@
-export interface Service {
-  AccessoryInformation: void
+export namespace HAP {
+  export interface Accessory {
+    UUID: string;
 
-  setCharacteristic(...args: any[]): Service
-  getCharacteristic(...args: any[]): Characteristic
-}
+    on(...args: any[]): void;
+    getService(...args: any[]): Service;
+    addService(...args: any[]): Service;
+    getServiceByUUIDAndSubType(...args: any[]): Service;
+    updateReachability(reachable: boolean): void;
+  }
 
-export interface Platform {
-  on(...args: any[]): void
-  registerPlatformAccessories(...args: any[]): void
-}
+  export interface Service {
+    AccessoryInformation: void;
 
-export interface Characteristic {
-  on(...args: any[]): Characteristic
-}
+    setCharacteristic(...args: any[]): Service;
+    getCharacteristic(...args: any[]): Characteristic;
+  }
 
-export interface Accessory {
-  UUID: string;
+  export interface Characteristic {
+    on(...args: any[]): Characteristic;
+  }
 
-  on(...args: any[]): void
-  getService(...args: any[]): Service
-  addService(...args: any[]): Service
-  updateReachability(reachable: boolean): void
-}
+  export interface Log {
+    (...args: any[]): void;
+    error(...args: any[]): void;
+  }
 
-export interface AccessoryConfig {
-  error(...args: any[]): void
+  export interface AccessoryConfig {
+    error(...args: any[]): void
+  }
+
+  export interface Platform {
+    on(...args: any[]): void
+    registerPlatformAccessories(...args: any[]): void
+  }
 }
 
 export interface AuthenticationResponse {
   authorization: string;
-}
-
-export interface Log {
-  (...args: any[]): void
-  error(...args: any[]): void
 }
 
 export interface LockProperties {

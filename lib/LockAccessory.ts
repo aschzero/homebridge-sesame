@@ -1,4 +1,4 @@
-import { Accessory, LockProperties, Service } from './types';
+import { HAP, LockProperties } from './types';
 
 import { Hap } from './HAP';
 import { Logger } from './HSLogger';
@@ -7,9 +7,9 @@ import { Lock } from './Lock';
 export class LockAccessory {
   lock: Lock;
   lockProperties: LockProperties;
-  accessory: Accessory;
+  accessory: HAP.Accessory;
 
-  constructor(accessory: Accessory, lockProperties: LockProperties) {
+  constructor(accessory: HAP.Accessory, lockProperties: LockProperties) {
     this.lockProperties = lockProperties;
     this.accessory = accessory;
 
@@ -24,7 +24,7 @@ export class LockAccessory {
     Logger.log(`Created accessory for ${this.lock.nickname}`);
   }
 
-  getOrCreateLockMechanismService(): Service {
+  getOrCreateLockMechanismService(): HAP.Service {
     let lockMechanismService = this.accessory.getService(Hap.Service.LockMechanism);
 
     if (!lockMechanismService) {
@@ -34,7 +34,7 @@ export class LockAccessory {
     return lockMechanismService;
   }
 
-  getOrCreateBatteryService(): Service {
+  getOrCreateBatteryService(): HAP.Service {
     let batteryService = this.accessory.getService(Hap.Service.BatteryService);
 
     if (!batteryService) {

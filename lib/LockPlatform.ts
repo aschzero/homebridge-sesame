@@ -2,15 +2,16 @@ import { Authenticator } from './APIAuthenticator';
 import { Hap } from './HAP';
 import { Logger } from './HSLogger';
 import { LockAccessory } from './LockAccessory';
-import { Accessory, AccessoryConfig, LockProperties, Log, Platform } from './types';
+import { HAP, LockProperties } from './types';
 
 export class LockPlatform {
-  platform: Platform;
-  accessories: Array<Accessory>;
-  registeredAccessories: Map<string, Accessory>;
+  platform: HAP.Platform;
+  accessories: Array<HAP.Accessory>;
+  registeredAccessories: Map<string, HAP.Accessory>;
+  log: HAP.Log;
 
-  constructor(log: Log, config: AccessoryConfig, platform: Platform) {
-    Logger.setLogger(log);
+  constructor(log: HAP.Log, config: HAP.AccessoryConfig, platform: HAP.Platform) {
+    Logger.setLogger(log, config['debug']);
 
     this.platform = platform;
     this.accessories = [];
@@ -37,7 +38,7 @@ export class LockPlatform {
     }
   }
 
-  configureAccessory(accessory: Accessory): void {
+  configureAccessory(accessory: HAP.Accessory): void {
     accessory.updateReachability(false);
 
     this.registeredAccessories.set(accessory.UUID, accessory);
@@ -45,7 +46,7 @@ export class LockPlatform {
 
   addAccessory(properties: LockProperties): void {
     let uuid: string = Hap.UUIDGen.generate(properties.nickname);
-    let accessory: Accessory;
+    let accessory: HAP.Accessory;
 
     if (this.registeredAccessories.get(uuid)) {
       accessory = this.registeredAccessories.get(uuid);
