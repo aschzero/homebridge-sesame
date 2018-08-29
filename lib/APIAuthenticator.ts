@@ -14,7 +14,7 @@ class APIAuthenticator {
     this.password = password;
 
     let payload = {
-      uri: `${Config.API.URI}/accounts/login`,
+      uri: `${Config.API_URI}/accounts/login`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -34,7 +34,7 @@ class APIAuthenticator {
 
   async getLocks(): Promise<LockProperties[]> {
     let payload = {
-      uri: `${Config.API.URI}/sesames`,
+      uri: `${Config.API_URI}/sesames`,
       method: 'GET',
       json: true,
       headers: {
