@@ -9,6 +9,13 @@ Control and monitor your Sesame smart lock with HomeKit integration.
 * Sesame lock with enabled cloud integration
 * Sesame Wifi Access Point
 
+## Functionality
+
+* Automatic discovery of all connected locks
+* Lock control
+* Reports battery percentage levels
+* Alerting when battery runs low
+
 ## Installation
 
 ```
@@ -37,15 +44,11 @@ Example homebridge configuration file:
 }
 ```
 
-The plugin will automaticaly discover your connected locks when homebridge is restarted.
+| Field    | Usage                                                                    |
+|----------|--------------------------------------------------------------------------|
+| platform | Needs to be `Sesame`                                                     |
+| email    | Your Sesame account email address                                        |
+| password | Your Sesame account password                                             |
+| debug    | Optional. Set to `true` to enable additional logging (default: `false`)  |
 
-### Required Fields
-* **platform** - Set to "Sesame"
-* **email/password** - Your login credentials
-
-## Features
-
-* Automatic discovery of all connected locks
-* Lock and unlock
-* Reports battery percentage levels
-* Alerting when battery runs low
+homebridge-sesame will automaticaly discover your connected locks when homebridge is restarted.
