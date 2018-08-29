@@ -26,15 +26,34 @@ export class LockPlatform {
           throw Error('email and password fields are required in config');
         }
 
-        Authenticator.authenticate(email, password).then(() => {
-          return Authenticator.getLocks();
-        }).then((locks) => {
-          locks.forEach((lock => this.addAccessory(lock)));
-        })
-        .catch((err) => {
-          Logger.log(`Encountered an error when trying to retrieve locks: ${err}`);
-        });
+        try {
+          this.authenticate(email, password);
+        } catch(e) {
+          Logger.log(e);
+        }
       });
+    }
+  }
+
+  async authenticate(email: string, password: string): Promise<void> {
+    Logger.log('Authenticating with Sesame...');
+
+    try {
+      await Authenticator.authenticate(email, password);
+    } catch(e) {
+      Logger.log(`Unable to authenticate: ${e}`);
+      return;
+    }
+
+    Logger.log('Retrieving locks...');
+    try {
+      let locks = await Authenticator.getLocks();
+
+      locks.forEach((lock) => {
+        this.addAccessory(lock);
+      });
+    } catch(e) {
+      Logger.log(`Unable to retrieve locks: ${e}`);
     }
   }
 

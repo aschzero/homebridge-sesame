@@ -1,7 +1,6 @@
-import * as Request from 'request-promise';
+import * as request from 'request-promise';
 
-import { APIConfig } from './APIConfig';
-import { Logger } from './HSLogger';
+import { Config } from './Config';
 import { AuthenticationResponse, LockProperties } from './types';
 
 
@@ -10,12 +9,12 @@ class APIAuthenticator {
   password: string;
   token: string;
 
-  authenticate(email: string, password: string): Promise<AuthenticationResponse> {
+  async authenticate(email: string, password: string): Promise<void> {
     this.email = email;
     this.password = password;
 
-    let options = {
-      uri: `${APIConfig.baseUri}/accounts/login`,
+    let payload = {
+      uri: `${Config.API.URI}/accounts/login`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -27,31 +26,15 @@ class APIAuthenticator {
       }
     }
 
-    Logger.log('Authenticating with Sesame');
+    let response = await request(payload);
+    let authResponse: AuthenticationResponse = response;
 
-    return new Promise((resolve, reject) => {
-      Request(options).then((response) => {
-        let authenticationResponse = response as AuthenticationResponse;
-
-        if (!authenticationResponse.authorization) {
-          throw Error('Unexpected response during authentication');
-        }
-
-        this.token = authenticationResponse.authorization;
-
-        resolve(authenticationResponse);
-      }).catch((err) => {
-        Logger.log(`Encountered an error when trying to get user token: ${err}`);
-        reject(err);
-      });
-    });
+    this.token = authResponse.authorization;
   }
 
-  getLocks(): Promise<LockProperties[]> {
-    Logger.log('Retrieving locks');
-
-    let options = {
-      uri: `${APIConfig.baseUri}/sesames`,
+  async getLocks(): Promise<LockProperties[]> {
+    let payload = {
+      uri: `${Config.API.URI}/sesames`,
       method: 'GET',
       json: true,
       headers: {
@@ -60,14 +43,10 @@ class APIAuthenticator {
       }
     }
 
-    return new Promise((resolve, reject) => {
-      Request(options).then((response) => {
-        resolve(response.sesames as LockProperties[]);
-      }).catch((err) => {
-        Logger.log(`Encountered an error when trying to get locks: ${err}`);
-        reject(err);
-      });
-    });
+    let response = await request(payload);
+    let locks: LockProperties[] = response.sesames;
+
+    return locks;
   }
 }
 

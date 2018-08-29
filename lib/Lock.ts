@@ -1,8 +1,10 @@
+import * as retry from 'retry';
 import * as request from 'request-promise';
 
 import { Authenticator } from './APIAuthenticator';
-import { APIConfig } from './APIConfig';
+import { Config } from './Config';
 import { LockProperties } from './types';
+import { Logger } from './HSLogger';
 
 export class Lock {
   deviceId: string;
@@ -30,7 +32,7 @@ export class Lock {
 
   async getState(): Promise<boolean> {
     let payload = {
-      uri: `${APIConfig.baseUri}/sesames/${this.deviceId}`,
+      uri: `${Config.API.URI}/sesames/${this.deviceId}`,
       method: 'GET',
       json: true,
       headers: {
@@ -49,7 +51,7 @@ export class Lock {
 
   async control(secure: boolean): Promise<void> {
     let payload = {
-      uri: `${APIConfig.baseUri}/sesames/${this.deviceId}/control`,
+      uri: `${Config.API.URI}/sesames/${this.deviceId}/control`,
       method: 'POST',
       json: true,
       headers: {
