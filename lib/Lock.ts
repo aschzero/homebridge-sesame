@@ -9,7 +9,6 @@ import { Logger } from './HSLogger';
 export class Lock {
   deviceId: string;
   nickname: string;
-  isUnlocked: boolean;
   apiEnabled: boolean;
   battery: number;
 
@@ -25,7 +24,6 @@ export class Lock {
     }
 
     this.nickname = properties.nickname;
-    this.isUnlocked = properties.is_unlocked;
     this.apiEnabled = properties.api_enabled;
     this.battery = properties.battery;
   }
@@ -46,7 +44,7 @@ export class Lock {
 
     this.setProperties(properties);
 
-    return properties.is_unlocked;
+    return !properties.is_unlocked;
   }
 
   async control(secure: boolean): Promise<void> {
