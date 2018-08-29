@@ -32,7 +32,7 @@ export class Lock {
 
   async getState(): Promise<boolean> {
     let payload = {
-      uri: `${Config.API.URI}/sesames/${this.deviceId}`,
+      uri: `${Config.API_URI}/sesames/${this.deviceId}`,
       method: 'GET',
       json: true,
       headers: {
@@ -51,7 +51,7 @@ export class Lock {
 
   async control(secure: boolean): Promise<void> {
     let payload = {
-      uri: `${Config.API.URI}/sesames/${this.deviceId}/control`,
+      uri: `${Config.API_URI}/sesames/${this.deviceId}/control`,
       method: 'POST',
       json: true,
       headers: {
