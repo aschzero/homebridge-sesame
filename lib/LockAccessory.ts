@@ -65,7 +65,7 @@ export class LockAccessory {
   }
 
   getLockState(callback): void {
-    this.lock.getStatus().then(() => {
+    this.lock.getState().then(() => {
       if (this.lock.isUnlocked) {
         Logger.log(this.lock.nickname, 'is unlocked');
         callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);

@@ -28,7 +28,7 @@ export class Lock {
     this.battery = properties.battery;
   }
 
-  async getStatus(): Promise<boolean> {
+  async getState(): Promise<boolean> {
     let payload = {
       uri: `${APIConfig.baseUri}/sesames/${this.deviceId}`,
       method: 'GET',
