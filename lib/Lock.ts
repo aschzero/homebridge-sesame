@@ -1,4 +1,4 @@
-import * as Request from 'request-promise';
+import * as request from 'request-promise';
 
 import { Authenticator } from './APIAuthenticator';
 import { APIConfig } from './APIConfig';
@@ -28,8 +28,8 @@ export class Lock {
     this.battery = properties.battery;
   }
 
-  getStatus(): Promise<void> {
-    let options = {
+  async getStatus(): Promise<boolean> {
+    let payload = {
       uri: `${APIConfig.baseUri}/sesames/${this.deviceId}`,
       method: 'GET',
       json: true,
@@ -39,18 +39,16 @@ export class Lock {
       }
     }
 
-    return new Promise((resolve, reject) => {
-      Request(options).then((response) => {
-        this.setProperties(response as LockProperties);
-        resolve();
-      }).catch((err) => {
-        reject(err);
-      });
-    });
+    let response = await request(payload);
+    let properties: LockProperties = response;
+
+    this.setProperties(properties);
+
+    return properties.is_unlocked;
   }
 
-  control(secure: boolean): Promise<void> {
-    let options = {
+  async control(secure: boolean): Promise<void> {
+    let payload = {
       uri: `${APIConfig.baseUri}/sesames/${this.deviceId}/control`,
       method: 'POST',
       json: true,
@@ -63,14 +61,6 @@ export class Lock {
       }
     }
 
-    return new Promise((resolve, reject) => {
-      Request(options).then(() => {
-        this.isUnlocked = !secure;
-
-        resolve();
-      }).catch((err) => {
-        reject(err);
-      });
-    });
+    await request(payload);
   }
 }
