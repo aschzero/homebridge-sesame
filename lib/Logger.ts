@@ -1,6 +1,6 @@
 import { HAP } from './types';
 
-class HALogger {
+class SesameLogger {
   public  log: HAP.Log;
   private debugMode: boolean;
 
@@ -21,4 +21,4 @@ class HALogger {
   }
 }
 
-export const Logger = new HALogger();
+export const Logger = new SesameLogger();

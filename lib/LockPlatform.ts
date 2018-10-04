@@ -1,6 +1,6 @@
 import { Authenticator } from './APIAuthenticator';
 import { Hap } from './HAP';
-import { Logger } from './HSLogger';
+import { Logger } from './Logger';
 import { LockAccessory } from './LockAccessory';
 import { HAP, LockProperties } from './types';
 

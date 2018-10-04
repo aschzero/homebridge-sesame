@@ -2,7 +2,7 @@ import * as retry from 'retry';
 
 import { Config } from './Config';
 import { Hap } from './HAP';
-import { Logger } from './HSLogger';
+import { Logger } from './Logger';
 import { Lock } from './Lock';
 import { HAP, LockProperties } from './types';
 
