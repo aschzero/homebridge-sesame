@@ -1,10 +1,8 @@
-import * as retry from 'retry';
 import * as request from 'request-promise';
 
 import { Authenticator } from './APIAuthenticator';
 import { Config } from './Config';
 import { LockProperties } from './types';
-import { Logger } from './Logger';
 
 export class Lock {
   deviceId: string;
