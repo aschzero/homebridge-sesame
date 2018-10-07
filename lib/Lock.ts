@@ -3,6 +3,7 @@ import * as request from 'request-promise';
 import { Authenticator } from './APIAuthenticator';
 import { Config } from './Config';
 import { LockProperties } from './types';
+import { Logger } from './Logger';
 
 export class Lock {
   deviceId: string;
@@ -38,8 +39,9 @@ export class Lock {
     }
 
     let response = await request(payload);
-    let properties: LockProperties = response;
+    Logger.debug('Got response:', response);
 
+    let properties: LockProperties = response;
     this.setProperties(properties);
 
     return !properties.is_unlocked;
@@ -59,6 +61,7 @@ export class Lock {
       }
     }
 
-    await request(payload);
+    let response = await request(payload);
+    Logger.debug('Got response:', response);
   }
 }
