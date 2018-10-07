@@ -4,18 +4,18 @@ import { Config } from './Config';
 import { Hap } from './HAP';
 import { Logger } from './Logger';
 import { Lock } from './Lock';
-import { HAP, LockProperties } from './types';
+import { HAP, LockResponse } from './types';
 
 export class LockAccessory {
   lock: Lock;
-  lockProperties: LockProperties;
+  LockResponse: LockResponse;
   accessory: HAP.Accessory;
 
-  constructor(accessory: HAP.Accessory, lockProperties: LockProperties) {
-    this.lockProperties = lockProperties;
+  constructor(accessory: HAP.Accessory, LockResponse: LockResponse) {
+    this.LockResponse = LockResponse;
     this.accessory = accessory;
 
-    this.lock = new Lock(lockProperties);
+    this.lock = new Lock(LockResponse);
 
     this.setupAccessoryInformationServiceCharacteristics();
     this.setupLockMechanismServiceCharacteristics();

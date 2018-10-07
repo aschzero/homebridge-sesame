@@ -1,7 +1,7 @@
 import * as request from 'request-promise';
 
 import { Config } from './Config';
-import { AuthenticationResponse, LockProperties } from './types';
+import { AuthenticationResponse, LockResponse } from './types';
 
 
 class APIAuthenticator {
@@ -32,7 +32,7 @@ class APIAuthenticator {
     this.token = authResponse.authorization;
   }
 
-  async getLocks(): Promise<LockProperties[]> {
+  async getLocks(): Promise<LockResponse[]> {
     let payload = {
       uri: `${Config.API_URI}/sesames`,
       method: 'GET',
@@ -44,7 +44,7 @@ class APIAuthenticator {
     }
 
     let response = await request(payload);
-    let locks: LockProperties[] = response.sesames;
+    let locks: LockResponse[] = response.sesames;
 
     return locks;
   }

@@ -2,7 +2,7 @@ import * as request from 'request-promise';
 
 import { Authenticator } from './APIAuthenticator';
 import { Config } from './Config';
-import { LockProperties } from './types';
+import { LockResponse } from './types';
 import { Logger } from './Logger';
 
 export class Lock {
@@ -11,11 +11,11 @@ export class Lock {
   apiEnabled: boolean;
   battery: number;
 
-  constructor(properties: LockProperties) {
+  constructor(properties: LockResponse) {
     this.setProperties(properties);
   }
 
-  setProperties(properties: LockProperties): void {
+  setProperties(properties: LockResponse): void {
     // Device ID is not included in the response when getting
     // lock state (only returned when retrieving all locks)
     if (properties.device_id) {
@@ -41,7 +41,7 @@ export class Lock {
     let response = await request(payload);
     Logger.debug('Got response:', response);
 
-    let properties: LockProperties = response;
+    let properties: LockResponse = response;
     this.setProperties(properties);
 
     return !properties.is_unlocked;

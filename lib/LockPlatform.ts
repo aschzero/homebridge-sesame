@@ -2,7 +2,7 @@ import { Authenticator } from './APIAuthenticator';
 import { Hap } from './HAP';
 import { Logger } from './Logger';
 import { LockAccessory } from './LockAccessory';
-import { HAP, LockProperties } from './types';
+import { HAP, LockResponse } from './types';
 
 export class LockPlatform {
   platform: HAP.Platform;
@@ -63,7 +63,7 @@ export class LockPlatform {
     this.registeredAccessories.set(accessory.UUID, accessory);
   }
 
-  addAccessory(properties: LockProperties): void {
+  addAccessory(properties: LockResponse): void {
     let uuid: string = Hap.UUIDGen.generate(properties.nickname);
     let accessory: HAP.Accessory;
 
