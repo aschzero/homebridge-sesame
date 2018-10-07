@@ -6,7 +6,7 @@
 	"author": "Andrew Schaper",
 	"license": "MIT",
 	"dependencies": {
-		"request": "^2.85.0",
+		"request": "^2.88.0",
 		"request-promise": "^4.2.2",
 		"retry": "^0.12.0",
 		"store": "^2.0.12"
