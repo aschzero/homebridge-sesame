@@ -1,7 +1,7 @@
-import { Authenticator } from './APIAuthenticator';
+import { Authenticator } from './Authenticator';
 import { Hap } from './HAP';
-import { Logger } from './Logger';
 import { LockAccessory } from './LockAccessory';
+import { Logger } from './Logger';
 import { HAP, LockResponse } from './types';
 
 export class LockPlatform {
@@ -26,34 +26,16 @@ export class LockPlatform {
           throw Error('email and password fields are required in config');
         }
 
-        try {
-          this.authenticate(email, password);
-        } catch(e) {
-          Logger.log(e);
-        }
+      let authenticator = new Authenticator();
+
+        authenticator.authenticate(email, password).then(() => {
+          authenticator.getLocks().then((locks) => {
+            locks.forEach(lock => this.addAccessory(lock));
+          });
+        }).catch((e) => {
+          Logger.log(`Unable to retrieve locks: ${e.message}`);
+        });
       });
-    }
-  }
-
-  async authenticate(email: string, password: string): Promise<void> {
-    Logger.log('Authenticating with Sesame...');
-
-    try {
-      await Authenticator.authenticate(email, password);
-    } catch(e) {
-      Logger.log(`Unable to authenticate: ${e}`);
-      return;
-    }
-
-    Logger.log('Retrieving locks...');
-    try {
-      let locks = await Authenticator.getLocks();
-
-      locks.forEach((lock) => {
-        this.addAccessory(lock);
-      });
-    } catch(e) {
-      Logger.log(`Unable to retrieve locks: ${e}`);
     }
   }
 
@@ -73,7 +55,7 @@ export class LockPlatform {
       accessory = new Hap.Accessory(properties.nickname, uuid);
     }
 
-    let lockAccessory = new LockAccessory(accessory, properties);
+    new LockAccessory(accessory, properties);
 
     accessory.on('identify', (paired, callback) => {
       callback();

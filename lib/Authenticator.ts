@@ -1,18 +1,12 @@
 import * as request from 'request-promise';
+import * as store from 'store';
 
 import { Config } from './Config';
-import { AuthenticationResponse, LockResponse } from './types';
+import { Logger } from './Logger';
+import { LockResponse } from './types';
 
-
-class APIAuthenticator {
-  email: string;
-  password: string;
-  token: string;
-
-  async authenticate(email: string, password: string): Promise<void> {
-    this.email = email;
-    this.password = password;
-
+export class Authenticator {
+  async authenticate(email: string, password: string): Promise<string> {
     let payload = {
       uri: `${Config.API_URI}/accounts/login`,
       headers: {
@@ -21,33 +15,39 @@ class APIAuthenticator {
       method: 'POST',
       json: true,
       body: {
-        'email': this.email,
-        'password': this.password
+        'email': email,
+        'password': password
       }
     }
 
     let response = await request(payload);
-    let authResponse: AuthenticationResponse = response;
+    let authResponse = response;
 
-    this.token = authResponse.authorization;
+    Logger.debug('Got response:', authResponse);
+
+    let token = authResponse.authorization;
+    store.set('token', token);
+
+    return token;
   }
 
   async getLocks(): Promise<LockResponse[]> {
+    let token = store.get('token');
     let payload = {
       uri: `${Config.API_URI}/sesames`,
       method: 'GET',
       json: true,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': this.token
+        'X-Authorization': token
       }
     }
 
     let response = await request(payload);
     let locks: LockResponse[] = response.sesames;
 
+    Logger.debug('Got response:', locks);
+
     return locks;
   }
 }
-
-export const Authenticator = new APIAuthenticator();

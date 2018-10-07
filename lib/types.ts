@@ -35,10 +35,6 @@ export namespace HAP {
   }
 }
 
-export interface AuthenticationResponse {
-  authorization: string;
-}
-
 export interface LockResponse {
   device_id: string;
   nickname: string;
