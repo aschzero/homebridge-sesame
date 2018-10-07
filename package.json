@@ -27,6 +27,7 @@
 	"scripts": {
 		"build": "tsc",
 		"debug": "node --inspect-brk $(which homebridge) -D -U $(pwd)/.homebridge",
+		"homebridge": "homebridge -D -U $(pwd)/.homebridge -P $(pwd)",
 		"prepublishOnly": "tsc -p . --outDir dist"
 	},
 	"keywords": [
