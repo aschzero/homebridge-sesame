@@ -1,5 +1,7 @@
 # homebridge-sesame
 
+[![npm version](http://img.shields.io/npm/v/homebridge-sesame.svg)](https://npmjs.org/package/homebridge-sesame)
+
 Control and monitor your Sesame smart lock with HomeKit integration.
 
 ## Prerequisites
