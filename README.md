@@ -26,31 +26,29 @@ npm install -g homebridge-sesame
 
 ## Configuration
 
-Example homebridge configuration file:
+### Obtain an API Token
+
+This plugin now uses v3 of the Sesame API which requires an existing API token.
+
+To create an API token, log into the [Sesame Dashboard](https://my.candyhouse.co/) and click on "API Settings" in the sidebar. The token you create will be used in your homebridge config file.
+
+### Example Homebridge Config
 
 ```
 {
   "bridge": {
     "name": "Homebridge",
-    "username": "CD:22:3D:E3:CE:30",
+    "username": "XX:XX:XX:XX:XX:XX",
     "port": 51826,
-    "pin": "031-45-156"
+    "pin": "XXX-XX-XXX"
   },
   "platforms": [
     {
       "platform": "Sesame",
-      "email": "my@email.com",
-      "password": "password123"
+      "token": "YOUR_API_TOKEN"
     }
   ]
 }
 ```
 
-| Field    | Usage                                                                    |
-|----------|--------------------------------------------------------------------------|
-| platform | Needs to be `Sesame`                                                     |
-| email    | Your Sesame account email address                                        |
-| password | Your Sesame account password                                             |
-| debug    | Optional. Set to `true` to enable additional logging (default: `false`)  |
-
-homebridge-sesame will automaticaly discover your connected locks when homebridge is restarted.
+homebridge-sesame will discover your connected locks when homebridge is restarted.
