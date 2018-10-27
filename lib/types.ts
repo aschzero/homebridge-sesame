@@ -22,6 +22,14 @@ export namespace LockResponse {
   }
 }
 
+export interface Payload {
+  uri: string;
+  json: boolean;
+  headers: any;
+  qs?: any;
+  body?: any;
+}
+
 export namespace HAP {
   export interface Accessory {
     UUID: string;

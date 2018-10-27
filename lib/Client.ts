@@ -3,7 +3,7 @@ import * as request from 'request-promise';
 import { Config } from './Config';
 import { Lock } from './Lock';
 import { Logger } from './Logger';
-import { LockResponse } from './types';
+import { LockResponse, Payload } from './types';
 
 export class Client {
   token: string;
@@ -13,29 +13,14 @@ export class Client {
   }
 
   async listLocks(): Promise<Lock[]> {
-    let payload = {
-      uri: `${Config.API_URI}/sesames`,
-      json: true,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token
-      }
-    }
-
+    let payload = this.buildPayload('sesames');
     let response: LockResponse.Metadata[] = await request.get(payload);
 
     return response.map(r => Lock.buildFromResponse(r));
   }
 
   async getStatus(id: string): Promise<LockResponse.Status> {
-    let payload = {
-      uri: `${Config.API_URI}/sesame/${id}`,
-      json: true,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token
-      }
-    }
+    let payload = this.buildPayload(`sesame/${id}`);
 
     let status = await request.get(payload);
 
@@ -43,42 +28,24 @@ export class Client {
   }
 
   async control(id: string, secure: boolean): Promise<void> {
-    let payload = {
-      uri: `${Config.API_URI}/sesame/${id}`,
-      json: true,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token
-      },
-      body: {
-        'command': (secure ? 'lock' : 'unlock')
-      }
-    }
+    let payload = this.buildPayload(`sesame/${id}`);
+    payload.body = {command: (secure ? 'lock' : 'unlock')}
 
     let response: LockResponse.Control = await request.post(payload);
 
     await this.waitForControlTask(response.task_id);
   }
 
-  async getTaskStatus(taskId: string): Promise<LockResponse.Task> {
-    let payload = {
-      uri: `${Config.API_URI}/action-result`,
-      json: true,
-      qs: {
-        task_id: taskId
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token
-      }
-    }
+  private async getTaskStatus(taskId: string): Promise<LockResponse.Task> {
+    let payload = this.buildPayload('action-result');
+    payload.qs = {task_id: taskId}
 
     let status = await request.get(payload);
 
     return status;
   }
 
-  async waitForControlTask(taskId: string): Promise<void> {
+  private async waitForControlTask(taskId: string): Promise<void> {
     let retries = Config.MAX_RETRIES;
 
     while (retries-- > 0) {
@@ -99,7 +66,20 @@ export class Client {
     return;
   }
 
-  async delay(ms: number) {
+  private buildPayload(path: string): Payload {
+    let payload: Payload = {
+      uri: `${Config.API_URI}/${path}`,
+      json: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.token
+      }
+    }
+
+    return payload;
+  }
+
+  private async delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
