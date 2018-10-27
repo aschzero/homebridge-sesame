@@ -1,7 +1,7 @@
 import { Client } from './Client';
-import { Hap } from './HAP';
 import { Lock } from './Lock';
 import { LockAccessory } from './LockAccessory';
+import { Hap } from './HAP';
 import { Logger } from './Logger';
 import { HAP } from './types';
 

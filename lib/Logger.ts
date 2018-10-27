@@ -1,4 +1,4 @@
-import { HAP } from './types';
+import { HAP } from './types'
 
 class SesameLogger {
   public  log: HAP.Log;
