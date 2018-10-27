@@ -1,7 +1,9 @@
 import * as request from 'request-promise';
 
 import { Config } from './Config';
-import { Lock } from './types';
+import { Lock } from './Lock';
+import { Logger } from './Logger';
+import { LockResponse } from './types';
 
 export class Client {
   token: string;
@@ -11,16 +13,33 @@ export class Client {
   }
 
   async listLocks(): Promise<Lock[]> {
-    let locks = await request.get({
+    let payload = {
       uri: `${Config.API_URI}/sesames`,
       json: true,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': this.token
       }
-    });
+    }
 
-    return locks;
+    let response: LockResponse.Metadata[] = await request.get(payload);
+
+    return response.map(r => Lock.buildFromResponse(r));
+  }
+
+  async getStatus(id: string): Promise<LockResponse.Status> {
+    let payload = {
+      uri: `${Config.API_URI}/sesame/${id}`,
+      json: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.token
+      }
+    }
+
+    let status = await request.get(payload);
+
+    return status;
   }
 
   async getLock(id: string): Promise<Lock> {

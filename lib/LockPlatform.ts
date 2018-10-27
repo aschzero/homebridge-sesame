@@ -1,8 +1,9 @@
 import { Client } from './Client';
 import { Hap } from './HAP';
+import { Lock } from './Lock';
 import { LockAccessory } from './LockAccessory';
 import { Logger } from './Logger';
-import { HAP, Lock } from './types';
+import { HAP } from './types';
 
 export class LockPlatform {
   platform: HAP.Platform;
@@ -17,7 +18,7 @@ export class LockPlatform {
     this.accessories = [];
     this.registeredAccessories = new Map();
 
-    if (!this.platform) return
+    if (!this.platform) return;
 
     this.platform.on('didFinishLaunching', () => {
       let token = config['token'];
@@ -38,7 +39,7 @@ export class LockPlatform {
 
       locks.forEach(lock => {
         let accessory = this.addAccessory(lock, token);
-        new LockAccessory(accessory, token);
+        new LockAccessory(accessory, lock, token);
       });
     } catch(e) {
       Logger.error('Unable to retrieve locks', e.message);
@@ -46,13 +47,13 @@ export class LockPlatform {
   }
 
   addAccessory(lock: Lock, token: string): HAP.Accessory {
-    let uuid: string = Hap.UUIDGen.generate(lock.nickname);
+    let uuid: string = Hap.UUIDGen.generate(lock.name);
     let accessory: HAP.Accessory;
 
     if (this.registeredAccessories.get(uuid)) {
       accessory = this.registeredAccessories.get(uuid);
     } else {
-      accessory = new Hap.Accessory(lock.nickname, uuid, token);
+      accessory = new Hap.Accessory(lock.name, uuid, token);
 
       accessory.getService(Hap.Service.AccessoryInformation)
         .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')

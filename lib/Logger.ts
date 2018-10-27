@@ -21,7 +21,7 @@ class SesameLogger {
   }
 
   error(message: string, error: any) {
-    this.log(`[ERROR] ${message}: ${error}`)
+    this.log(`[ERROR] ${message}. ${error}`)
   }
 }
 
