@@ -1,8 +1,8 @@
-import { Authenticator } from './Authenticator';
+import { Client } from './Client';
 import { Hap } from './HAP';
 import { LockAccessory } from './LockAccessory';
 import { Logger } from './Logger';
-import { HAP, LockResponse } from './types';
+import { HAP, Lock } from './types';
 
 export class LockPlatform {
   platform: HAP.Platform;
@@ -17,54 +17,58 @@ export class LockPlatform {
     this.accessories = [];
     this.registeredAccessories = new Map();
 
-    if (this.platform) {
-      this.platform.on('didFinishLaunching', () => {
-        let email = config['email'];
-        let password = config['password'];
+    if (!this.platform) return
 
-        if (!email || !password) {
-          throw Error('email and password fields are required in config');
-        }
+    this.platform.on('didFinishLaunching', () => {
+      let token = config['token'];
 
-      let authenticator = new Authenticator();
+      if (!token) {
+        throw Error('A token was not found in the homebridge config. For more information, see: https://github.com/aschzero/homebridge-sesame#configuration');
+      }
 
-        authenticator.authenticate(email, password).then(() => {
-          authenticator.getLocks().then((locks) => {
-            locks.forEach(lock => this.addAccessory(lock));
-          });
-        }).catch((e) => {
-          Logger.log(`Unable to retrieve locks: ${e.message}`);
-        });
+      this.retrieveLocks(token);
+    });
+  }
+
+  async retrieveLocks(token: string): Promise<void> {
+    let client = new Client(token);
+
+    try {
+      let locks = await client.listLocks();
+
+      locks.forEach(lock => {
+        let accessory = this.addAccessory(lock, token);
+        new LockAccessory(accessory, token);
       });
+    } catch(e) {
+      Logger.error('Unable to retrieve locks', e.message);
     }
   }
 
-  configureAccessory(accessory: HAP.Accessory): void {
-    accessory.updateReachability(false);
-
-    this.registeredAccessories.set(accessory.UUID, accessory);
-  }
-
-  addAccessory(properties: LockResponse): void {
-    let uuid: string = Hap.UUIDGen.generate(properties.nickname);
+  addAccessory(lock: Lock, token: string): HAP.Accessory {
+    let uuid: string = Hap.UUIDGen.generate(lock.nickname);
     let accessory: HAP.Accessory;
 
     if (this.registeredAccessories.get(uuid)) {
       accessory = this.registeredAccessories.get(uuid);
     } else {
-      accessory = new Hap.Accessory(properties.nickname, uuid);
-    }
+      accessory = new Hap.Accessory(lock.nickname, uuid, token);
 
-    new LockAccessory(accessory, properties);
+      accessory.getService(Hap.Service.AccessoryInformation)
+        .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')
+        .setCharacteristic(Hap.Characteristic.Model, 'Sesame')
+        .setCharacteristic(Hap.Characteristic.SerialNumber, lock.serial);
 
-    accessory.on('identify', (paired, callback) => {
-      callback();
-    });
-
-    this.accessories.push(accessory);
-    if (!this.registeredAccessories.get(uuid)) {
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
     }
+
+    this.accessories.push(accessory);
+
+    return accessory;
+  }
+
+  configureAccessory(accessory: HAP.Accessory): void {
+    accessory.reachability = false;
+    this.registeredAccessories.set(accessory.UUID, accessory);
   }
 }
-

@@ -19,6 +19,10 @@ class SesameLogger {
 
     this.log(result);
   }
+
+  error(message: string, error: any) {
+    this.log(`[ERROR] ${message}: ${error}`)
+  }
 }
 
 export const Logger = new SesameLogger();

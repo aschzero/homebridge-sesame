@@ -1,6 +1,19 @@
+export interface Lock {
+  device_id: string;
+  serial: string;
+  nickname: string;
+}
+
+export interface LockStatus {
+  locked: boolean;
+  responsive: boolean;
+  battery: number;
+}
+
 export namespace HAP {
   export interface Accessory {
     UUID: string;
+    reachability: boolean;
 
     on(...args: any[]): void;
     getService(...args: any[]): Service;
@@ -33,12 +46,4 @@ export namespace HAP {
     on(...args: any[]): void
     registerPlatformAccessories(...args: any[]): void
   }
-}
-
-export interface LockResponse {
-  device_id: string;
-  nickname: string;
-  is_unlocked: boolean;
-  api_enabled: boolean;
-  battery: number;
 }
