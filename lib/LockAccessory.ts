@@ -104,7 +104,7 @@ export class LockAccessory {
     try {
       await this.client.control(this.lock.id, targetState);
 
-      Logger.log(`${this.lock.name} has been ${targetState ? 'locked' : 'unlocked'}`);
+      Logger.log(`${this.lock.name} is ${targetState ? 'locked' : 'unlocked'}`);
 
       lockMechanismService.getCharacteristic(Hap.Characteristic.LockCurrentState)
                           .updateValue(targetState);
