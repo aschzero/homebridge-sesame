@@ -42,56 +42,64 @@ export class Client {
     return status;
   }
 
-  async getLock(id: string): Promise<Lock> {
-    let lock = await request.get({
+  async control(id: string, secure: boolean): Promise<void> {
+    let payload = {
       uri: `${Config.API_URI}/sesame/${id}`,
       json: true,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': this.token
+      },
+      body: {
+        'command': (secure ? 'lock' : 'unlock')
       }
-    });
+    }
 
-    return lock;
+    let response: LockResponse.Control = await request.post(payload);
+
+    await this.waitForControlTask(response.task_id);
   }
 
-  // async getState(): Promise<boolean> {
-  //   let token = store.get('token');
-  //   let payload = {
-  //     uri: `${Config.API_URI}/sesames/${this.deviceId}`,
-  //     method: 'GET',
-  //     json: true,
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'X-Authorization': token
-  //     }
-  //   }
+  async getTaskStatus(taskId: string): Promise<LockResponse.Task> {
+    let payload = {
+      uri: `${Config.API_URI}/action-result`,
+      json: true,
+      qs: {
+        task_id: taskId
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.token
+      }
+    }
 
-  //   let response = await request(payload);
-  //   Logger.debug('Got response:', response);
+    let status = await request.get(payload);
 
-  //   let properties: LockResponse = response;
-  //   this.setProperties(properties);
+    return status;
+  }
 
-  //   return !properties.is_unlocked;
-  // }
+  async waitForControlTask(taskId: string): Promise<void> {
+    let retries = Config.MAX_RETRIES;
 
-  // async control(secure: boolean): Promise<void> {
-  //   let token = store.get('token');
-  //   let payload = {
-  //     uri: `${Config.API_URI}/sesames/${this.deviceId}/control`,
-  //     method: 'POST',
-  //     json: true,
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'X-Authorization': token
-  //     },
-  //     body: {
-  //       'type': (secure ? 'lock' : 'unlock')
-  //     }
-  //   }
+    while (retries-- > 0) {
+      Logger.debug(`Waiting for control task to complete. Attempts remaining: ${retries}/${Config.MAX_RETRIES}`);
 
-  //   let response = await request(payload);
-  //   Logger.debug('Got response:', response);
-  // }
+      await this.delay(Config.DELAY);
+
+      if (retries == 0) {
+        throw Error('Control task took too long to complete.');
+      }
+
+      let status = await this.getTaskStatus(taskId);
+      Logger.debug('Task response', status);
+
+      if (status.successful) break;
+    }
+
+    return;
+  }
+
+  async delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }
