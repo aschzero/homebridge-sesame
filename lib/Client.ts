@@ -16,7 +16,7 @@ export class Client {
     let payload = this.buildPayload('sesames');
     let response: LockResponse.Metadata[] = await request.get(payload);
 
-    return response.map(r => Lock.buildFromResponse(r));
+    return response.map(r => Lock.buildFromMetadata(r));
   }
 
   async getStatus(id: string): Promise<LockResponse.Status> {

@@ -8,19 +8,21 @@ export class Lock {
   responsive: boolean;
   battery: number;
 
-  static buildFromResponse(metadata: LockResponse.Metadata, status?: LockResponse.Status): Lock {
+  static buildFromMetadata(metadata: LockResponse.Metadata): Lock {
     let lock = new Lock();
 
     lock.id = metadata.device_id;
     lock.name = metadata.nickname;
     lock.serial = metadata.serial;
 
-    if (status) {
-      lock.locked = status.locked;
-      lock.responsive = status.responsive;
-      lock.battery = status.battery;
-    }
-
     return lock;
+  }
+
+  setStatus(status: LockResponse.Status): Lock {
+    this.locked = status.locked;
+    this.responsive = status.responsive;
+    this.battery = status.battery;
+
+    return this;
   }
 }

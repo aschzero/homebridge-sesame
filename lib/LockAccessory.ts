@@ -33,22 +33,22 @@ export class LockAccessory {
     return lockMechanismService;
   }
 
+  getOrCreateBatteryService(): HAP.Service {
+    let batteryService = this.accessory.getService(Hap.Service.BatteryService);
+
+    if (!batteryService) {
+      batteryService = this.accessory.addService(Hap.Service.BatteryService, this.lock.name);
+    }
+
+    return batteryService;
+  }
+
   setupInformationServiceCharacteristics(): void {
     this.accessory.getService(Hap.Service.AccessoryInformation)
       .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')
       .setCharacteristic(Hap.Characteristic.Model, 'Sesame')
       .setCharacteristic(Hap.Characteristic.SerialNumber, this.lock.serial);
   }
-
-  // getOrCreateBatteryService(): HAP.Service {
-  //   let batteryService = this.getService(Hap.Service.BatteryService);
-
-  //   if (!batteryService) {
-  //     batteryService = this.addService(Hap.Service.BatteryService, this.lock.name);
-  //   }
-
-  //   return batteryService;
-  // }
 
   setupLockMechanismServiceCharacteristics(): void {
     let lockMechanismService = this.getOrCreateLockMechanismService();
@@ -63,9 +63,27 @@ export class LockAccessory {
       .on('set', this.setLockState.bind(this));
   }
 
+  setupBatteryServiceCharacteristics(): void {
+    let batteryService = this.getOrCreateBatteryService();
+
+    batteryService
+      .getCharacteristic(Hap.Characteristic.BatteryLevel)
+      .on('get', this.getBatteryLevel.bind(this));
+
+    batteryService
+      .getCharacteristic(Hap.Characteristic.ChargingState)
+      .on('get', this.getBatteryChargingState.bind(this));
+
+    batteryService
+      .getCharacteristic(Hap.Characteristic.StatusLowBattery)
+      .on('get', this.getLowBatteryStatus.bind(this));
+  }
+
   async getLockState(callback): Promise<void> {
     try {
       let status = await this.client.getStatus(this.lock.id);
+
+      this.lock.setStatus(status);
 
       if (status.locked) {
         callback(null, Hap.Characteristic.LockCurrentState.SECURED);
@@ -98,36 +116,20 @@ export class LockAccessory {
     }
   }
 
-  setupBatteryServiceCharacteristics(): void {
-    // let batteryService = this.getOrCreateBatteryService();
-
-    // batteryService
-    //   .getCharacteristic(Hap.Characteristic.BatteryLevel)
-    //   .on('get', this.getBatteryLevel.bind(this));
-
-    // batteryService
-    //   .getCharacteristic(Hap.Characteristic.ChargingState)
-    //   .on('get', this.getBatteryChargingState.bind(this));
-
-    // batteryService
-    //   .getCharacteristic(Hap.Characteristic.StatusLowBattery)
-    //   .on('get', this.getLowBatteryStatus.bind(this));
-  }
-
   getBatteryLevel(callback): void {
-    // callback(null, this.lockMetadata.battery);
+    callback(null, this.lock.battery);
   }
 
   getBatteryChargingState(callback): void {
-    // callback(null, Hap.Characteristic.ChargingState.NOT_CHARGING);
+    callback(null, Hap.Characteristic.ChargingState.NOT_CHARGING);
   }
 
   getLowBatteryStatus(callback): void {
-    // if (this.lockMetadata.battery <= 20) {
-    //   callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
-    // } else {
-    //   callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
-    // }
+    if (this.lock.battery <= 20) {
+      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
+    } else {
+      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
+    }
   }
 }
 
