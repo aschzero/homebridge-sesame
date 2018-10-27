@@ -55,11 +55,6 @@ export class LockPlatform {
     } else {
       accessory = new Hap.Accessory(lock.name, uuid, token);
 
-      accessory.getService(Hap.Service.AccessoryInformation)
-        .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')
-        .setCharacteristic(Hap.Characteristic.Model, 'Sesame')
-        .setCharacteristic(Hap.Characteristic.SerialNumber, lock.serial);
-
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
     }
 

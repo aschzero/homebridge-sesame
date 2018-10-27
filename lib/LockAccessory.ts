@@ -14,6 +14,7 @@ export class LockAccessory {
     this.accessory = accessory;
     this.client = new Client(token);
 
+    this.setupInformationServiceCharacteristics();
     this.setupLockMechanismServiceCharacteristics();
     this.setupBatteryServiceCharacteristics();
 
@@ -30,6 +31,13 @@ export class LockAccessory {
     }
 
     return lockMechanismService;
+  }
+
+  setupInformationServiceCharacteristics(): void {
+    this.accessory.getService(Hap.Service.AccessoryInformation)
+      .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')
+      .setCharacteristic(Hap.Characteristic.Model, 'Sesame')
+      .setCharacteristic(Hap.Characteristic.SerialNumber, this.lock.serial);
   }
 
   // getOrCreateBatteryService(): HAP.Service {
