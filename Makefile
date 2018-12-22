@@ -3,7 +3,7 @@ PWD=$(shell pwd)
 
 default: build run
 
-debug: build node_debug
+debug: build inspect
 
 build:
 	tsc
@@ -11,7 +11,7 @@ build:
 run:
 	$(HOMEBRIDGE) -D -U $(PWD)/.homebridge -P $(PWD)
 
-node_debug:
+inspect:
 	node --inspect-brk $(HOMEBRIDGE) -D -U $(PWD)/.homebridge
 
 clean:
