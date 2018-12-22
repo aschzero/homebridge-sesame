@@ -1,6 +1,6 @@
 {
 	"name": "homebridge-sesame",
-	"version": "2.0.0",
+	"version": "2.0.1-beta",
 	"description": "Homebridge plugin for the Sesame smart lock",
 	"main": "./dist/index.js",
 	"author": "Andrew Schaper",
