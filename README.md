@@ -6,7 +6,7 @@ Control and monitor your Sesame smart lock with HomeKit integration.
 
 ## Prerequisites
 
-* Working installation of [Homebridge](https://github.com/nfarina/homebridge)
+* Installation of [Homebridge](https://github.com/nfarina/homebridge)
 * iOS 11 or later
 * Sesame lock with enabled cloud integration
 * Sesame Wifi Access Point
@@ -32,23 +32,17 @@ This plugin now uses v3 of the Sesame API which requires an existing API token.
 
 To create an API token, log into the [Sesame Dashboard](https://my.candyhouse.co/) and click on "API Settings" in the sidebar. The token you create will be used in your homebridge config file.
 
-### Example Homebridge Config
+### Configuration
+
+Add the following to your homebridge config:
 
 ```
-{
-  "bridge": {
-    "name": "Homebridge",
-    "username": "XX:XX:XX:XX:XX:XX",
-    "port": 51826,
-    "pin": "XXX-XX-XXX"
-  },
-  "platforms": [
-    {
-      "platform": "Sesame",
-      "token": "YOUR_API_TOKEN"
-    }
-  ]
-}
+"platforms": [
+  {
+    "platform": "Sesame",
+    "token": "YOUR_API_TOKEN"
+  }
+]
 ```
 
 homebridge-sesame will discover your connected locks when homebridge is restarted.
