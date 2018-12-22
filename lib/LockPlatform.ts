@@ -26,16 +26,19 @@ export class LockPlatform {
 
       store.set('token', config.token);
 
-      try {
-        let client = new Client();
-
-        client.listLocks().then(locks => {
-          locks.forEach(lock => this.addAccessory(lock));
-        });
-      } catch(e) {
-        Logger.error('Unable to retrieve locks', e.message);
-      }
+      this.retrieveLocks();
     });
+  }
+
+  async retrieveLocks(): Promise<void> {
+    try {
+      let client = new Client();
+      let locks = await client.listLocks();
+
+      locks.forEach(lock => this.addAccessory(lock));
+    } catch(e) {
+      Logger.error('Unable to retrieve locks', e);
+    }
   }
 
   configureAccessory(accessory: Accessory): void {
@@ -55,6 +58,8 @@ export class LockPlatform {
 
     let lockAccessory = new LockAccessory();
     lockAccessory.register(accessory, lock);
+
+    Logger.log(`Found ${lock.name}`);
 
     return accessory;
   }
