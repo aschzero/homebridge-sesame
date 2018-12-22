@@ -46,7 +46,7 @@ export class LockPlatform {
   }
 
   addAccessory(lock: Lock): Accessory {
-    let uuid: string = HAP.UUID.generate(lock.name);
+    let uuid: string = HAP.UUID.generate(lock.id);
     let accessory = this.accessories.get(uuid);
 
     if (!accessory) {
