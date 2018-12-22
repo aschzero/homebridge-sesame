@@ -20,27 +20,29 @@ export class LockPlatform {
     this.accessories = new Map<string, Accessory>();
 
     this.platform.on('didFinishLaunching', () => {
-      let token = config['token'];
-
-      if (!token) {
+      if (!config.token) {
         throw Error('A token was not found in the homebridge config. For more information, see: https://github.com/aschzero/homebridge-sesame#configuration');
       }
 
-      this.retrieveLocks(token);
+      store.set('token', config.token);
+
+      try {
+        let client = new Client();
+
+        client.listLocks().then(locks => {
+          locks.forEach(lock => this.addAccessory(lock));
+        });
+      } catch(e) {
+        Logger.error('Unable to retrieve locks', e.message);
+      }
     });
   }
-
-  async retrieveLocks(token: string): Promise<void> {
-    let client = new Client(token);
-
-    try {
-      let locks = await client.listLocks();
 
   configureAccessory(accessory: Accessory): void {
     this.accessories.set(accessory.UUID, accessory);
   }
 
-  addAccessory(lock: Lock, token: string): HAP.Accessory {
+  addAccessory(lock: Lock): Accessory {
     let uuid: string = HAP.UUID.generate(lock.name);
     let accessory = this.accessories.get(uuid);
 

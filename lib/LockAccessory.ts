@@ -9,10 +9,13 @@ export class LockAccessory {
   accessory: Accessory;
   client: Client;
 
-  constructor(accessory, lock: Lock, token: string) {
+  constructor() {
+    this.client = new Client();
+  }
+
+  register(accessory: Accessory, lock: Lock) {
     this.lock = lock;
     this.accessory = accessory;
-    this.client = new Client(token);
 
     this.accessory.getService(HAP.Service.AccessoryInformation)
       .setCharacteristic(HAP.Characteristic.Manufacturer, 'CANDY HOUSE')

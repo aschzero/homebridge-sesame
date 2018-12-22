@@ -9,8 +9,8 @@ import { Logger } from './Logger';
 export class Client {
   token: string;
 
-  constructor(token: string) {
-    this.token = token;
+  constructor() {
+    this.token = store.get('token');
   }
 
   async listLocks(): Promise<Lock[]> {

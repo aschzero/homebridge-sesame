@@ -7,12 +7,14 @@
 	"license": "MIT",
 	"dependencies": {
 		"request": "^2.88.0",
-		"request-promise": "^4.2.2"
+		"request-promise": "^4.2.2",
+		"store": "^2.0.12"
 	},
 	"devDependencies": {
-		"typescript": "^2.8.1",
 		"@types/request": "^2.47.0",
-		"@types/request-promise": "^4.1.41"
+		"@types/request-promise": "^4.1.41",
+		"@types/storejs": "^2.0.3",
+		"typescript": "^2.8.1"
 	},
 	"engines": {
 		"node": ">=0.12.0",
