@@ -1,9 +1,10 @@
 import * as request from 'request-promise';
+import * as store from 'store';
 
 import { Config } from './Config';
+import { Control, Metadata, Payload, Status, Task } from './interfaces/API';
 import { Lock } from './Lock';
 import { Logger } from './Logger';
-import { LockResponse, Payload } from './types';
 
 export class Client {
   token: string;
@@ -14,14 +15,13 @@ export class Client {
 
   async listLocks(): Promise<Lock[]> {
     let payload = this.buildPayload('sesames');
-    let response: LockResponse.Metadata[] = await request.get(payload);
+    let response: Metadata[] = await request.get(payload);
 
     return response.map(r => Lock.buildFromMetadata(r));
   }
 
-  async getStatus(id: string): Promise<LockResponse.Status> {
+  async getStatus(id: string): Promise<Status> {
     let payload = this.buildPayload(`sesame/${id}`);
-
     let status = await request.get(payload);
 
     return status;
@@ -31,12 +31,12 @@ export class Client {
     let payload = this.buildPayload(`sesame/${id}`);
     payload.body = {command: (secure ? 'lock' : 'unlock')}
 
-    let response: LockResponse.Control = await request.post(payload);
+    let response: Control = await request.post(payload);
 
     await this.waitForControlTask(response.task_id);
   }
 
-  private async getTaskStatus(taskId: string): Promise<LockResponse.Task> {
+  private async getTaskStatus(taskId: string): Promise<Task> {
     let payload = this.buildPayload('action-result');
     payload.qs = {task_id: taskId}
 

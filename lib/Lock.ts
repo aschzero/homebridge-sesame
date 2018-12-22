@@ -1,4 +1,4 @@
-import { LockResponse } from './types';
+import { Metadata, Status } from './interfaces/API';
 
 export class Lock {
   id: string;
@@ -8,7 +8,7 @@ export class Lock {
   responsive: boolean;
   battery: number;
 
-  static buildFromMetadata(metadata: LockResponse.Metadata): Lock {
+  static buildFromMetadata(metadata: Metadata): Lock {
     let lock = new Lock();
 
     lock.id = metadata.device_id;
@@ -18,7 +18,7 @@ export class Lock {
     return lock;
   }
 
-  setStatus(status: LockResponse.Status): Lock {
+  setStatus(status: Status): Lock {
     this.locked = status.locked;
     this.responsive = status.responsive;
     this.battery = status.battery;

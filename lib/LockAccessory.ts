@@ -1,12 +1,12 @@
 import { Client } from './Client';
 import { Lock } from './Lock';
-import { Hap } from './HAP';
+import { HAP } from './HAP';
 import { Logger } from './Logger';
-import { HAP } from './types';
+import { Accessory, Service } from './interfaces/HAP';
 
 export class LockAccessory {
   lock: Lock;
-  accessory: HAP.Accessory;
+  accessory: Accessory;
   client: Client;
 
   constructor(accessory, lock: Lock, token: string) {
@@ -14,51 +14,44 @@ export class LockAccessory {
     this.accessory = accessory;
     this.client = new Client(token);
 
-    this.setupInformationServiceCharacteristics();
+    this.accessory.getService(HAP.Service.AccessoryInformation)
+      .setCharacteristic(HAP.Characteristic.Manufacturer, 'CANDY HOUSE')
+      .setCharacteristic(HAP.Characteristic.Model, 'Sesame')
+      .setCharacteristic(HAP.Characteristic.SerialNumber, this.lock.serial);
+
     this.setupLockMechanismServiceCharacteristics();
     this.setupBatteryServiceCharacteristics();
-
-    this.accessory.updateReachability(true);
-
-    Logger.log(`Created accessory for ${this.lock.name}`);
   }
 
-  getOrCreateLockMechanismService(): HAP.Service {
-    let lockMechanismService = this.accessory.getService(Hap.Service.LockMechanism);
+  getOrCreateLockMechanismService(): Service {
+    let lockMechanismService = this.accessory.getService(HAP.Service.LockMechanism);
 
     if (!lockMechanismService) {
-      lockMechanismService = this.accessory.addService(Hap.Service.LockMechanism, this.lock.name);
+      lockMechanismService = this.accessory.addService(HAP.Service.LockMechanism, this.lock.name);
     }
 
     return lockMechanismService;
   }
 
-  getOrCreateBatteryService(): HAP.Service {
-    let batteryService = this.accessory.getService(Hap.Service.BatteryService);
+  getOrCreateBatteryService(): Service {
+    let batteryService = this.accessory.getService(HAP.Service.BatteryService);
 
     if (!batteryService) {
-      batteryService = this.accessory.addService(Hap.Service.BatteryService, this.lock.name);
+      batteryService = this.accessory.addService(HAP.Service.BatteryService, this.lock.name);
     }
 
     return batteryService;
-  }
-
-  setupInformationServiceCharacteristics(): void {
-    this.accessory.getService(Hap.Service.AccessoryInformation)
-      .setCharacteristic(Hap.Characteristic.Manufacturer, 'CANDY HOUSE')
-      .setCharacteristic(Hap.Characteristic.Model, 'Sesame')
-      .setCharacteristic(Hap.Characteristic.SerialNumber, this.lock.serial);
   }
 
   setupLockMechanismServiceCharacteristics(): void {
     let lockMechanismService = this.getOrCreateLockMechanismService();
 
     lockMechanismService
-      .getCharacteristic(Hap.Characteristic.LockCurrentState)
+      .getCharacteristic(HAP.Characteristic.LockCurrentState)
       .on('get', this.getLockState.bind(this));
 
     lockMechanismService
-      .getCharacteristic(Hap.Characteristic.LockTargetState)
+      .getCharacteristic(HAP.Characteristic.LockTargetState)
       .on('get', this.getLockState.bind(this))
       .on('set', this.setLockState.bind(this));
   }
@@ -67,15 +60,15 @@ export class LockAccessory {
     let batteryService = this.getOrCreateBatteryService();
 
     batteryService
-      .getCharacteristic(Hap.Characteristic.BatteryLevel)
+      .getCharacteristic(HAP.Characteristic.BatteryLevel)
       .on('get', this.getBatteryLevel.bind(this));
 
     batteryService
-      .getCharacteristic(Hap.Characteristic.ChargingState)
+      .getCharacteristic(HAP.Characteristic.ChargingState)
       .on('get', this.getBatteryChargingState.bind(this));
 
     batteryService
-      .getCharacteristic(Hap.Characteristic.StatusLowBattery)
+      .getCharacteristic(HAP.Characteristic.StatusLowBattery)
       .on('get', this.getLowBatteryStatus.bind(this));
   }
 
@@ -86,9 +79,9 @@ export class LockAccessory {
       this.lock.setStatus(status);
 
       if (status.locked) {
-        callback(null, Hap.Characteristic.LockCurrentState.SECURED);
+        callback(null, HAP.Characteristic.LockCurrentState.SECURED);
       } else {
-        callback(null, Hap.Characteristic.LockCurrentState.UNSECURED);
+        callback(null, HAP.Characteristic.LockCurrentState.UNSECURED);
       }
     } catch(e) {
       Logger.error('Unable to get lock state', e);
@@ -106,7 +99,7 @@ export class LockAccessory {
 
       Logger.log(`${this.lock.name} is ${targetState ? 'locked' : 'unlocked'}`);
 
-      lockMechanismService.getCharacteristic(Hap.Characteristic.LockCurrentState)
+      lockMechanismService.getCharacteristic(HAP.Characteristic.LockCurrentState)
                           .updateValue(targetState);
 
       callback(null);
@@ -121,14 +114,14 @@ export class LockAccessory {
   }
 
   getBatteryChargingState(callback): void {
-    callback(null, Hap.Characteristic.ChargingState.NOT_CHARGING);
+    callback(null, HAP.Characteristic.ChargingState.NOT_CHARGING);
   }
 
   getLowBatteryStatus(callback): void {
     if (this.lock.battery <= 20) {
-      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
+      callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
     } else {
-      callback(null, Hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
+      callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
     }
   }
 }
