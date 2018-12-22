@@ -105,7 +105,7 @@ export class LockAccessory {
       lockMechanismService.getCharacteristic(HAP.Characteristic.LockCurrentState)
                           .updateValue(targetState);
 
-      callback(null);
+      callback();
     } catch(e) {
       Logger.error('Unable to set lock state', e);
       callback(e);
