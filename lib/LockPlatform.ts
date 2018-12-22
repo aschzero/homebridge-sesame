@@ -46,8 +46,10 @@ export class LockPlatform {
   }
 
   addAccessory(lock: Lock): Accessory {
-    let uuid: string = HAP.UUID.generate(lock.id);
+    let uuid = HAP.UUID.generate(lock.id);
     let accessory = this.accessories.get(uuid);
+
+    this.removeStaleAccessory(lock);
 
     if (!accessory) {
       accessory = new HAP.Accessory(lock.name, uuid);
@@ -62,5 +64,15 @@ export class LockPlatform {
     Logger.log(`Found ${lock.name}`);
 
     return accessory;
+  }
+
+  removeStaleAccessory(lock: Lock): void {
+    let oldUuid = HAP.UUID.generate(lock.name);
+    let oldAccessory = this.accessories.get(oldUuid);
+
+    if (oldAccessory) {
+      this.platform.unregisterPlatformAccessories('homebridge-sesame', 'Sesame', [oldAccessory]);
+      Logger.debug(`Removed stale accessory ${lock.name}`);
+    }
   }
 }

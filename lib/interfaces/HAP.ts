@@ -65,7 +65,8 @@ export interface Log {
 
 export interface Platform {
   on(...args: any[]): void
-  registerPlatformAccessories(...args: any[]): void;
+  registerPlatformAccessories(pluginName: string, platformname: string, accessories: Array<Accessory>): void;
+  unregisterPlatformAccessories(pluginName: string, platformname: string, accessories: Array<Accessory>): void;
 }
 
 export interface UUID {
