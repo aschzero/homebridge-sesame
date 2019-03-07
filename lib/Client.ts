@@ -17,12 +17,16 @@ export class Client {
     let payload = this.buildPayload('sesames');
     let response: Metadata[] = await request.get(payload);
 
+    Logger.debug('Got listLocks response', response);
+
     return response.map(r => Lock.buildFromMetadata(r));
   }
 
   async getStatus(id: string): Promise<Status> {
     let payload = this.buildPayload(`sesame/${id}`);
     let status = await request.get(payload);
+
+    Logger.debug('Got status response', status);
 
     return status;
   }
