@@ -81,6 +81,10 @@ export class LockAccessory {
 
       this.lock.setStatus(status);
 
+      if (!this.lock.responsive) {
+        throw new Error(`${this.lock.name} is unresponsive according to the API, check WiFi connectivity.`);
+      }
+
       if (status.locked) {
         callback(null, HAP.Characteristic.LockCurrentState.SECURED);
       } else {
