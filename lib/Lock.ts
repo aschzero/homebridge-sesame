@@ -1,5 +1,5 @@
 import { Client } from './Client';
-import { LockMetadata, LockStatus } from './interfaces/API';
+import { LockMetadata, LockStatus, TaskResult } from './interfaces/API';
 import { Mutex } from './util/Mutex';
 
 export class Lock {
@@ -10,10 +10,12 @@ export class Lock {
 
   client: Client;
   statusMutex: Mutex<LockStatus>;
+  syncMutex: Mutex<TaskResult>;
 
   constructor(metadata: LockMetadata) {
     this.client = new Client();
     this.statusMutex = new Mutex<LockStatus>();
+    this.syncMutex = new Mutex<TaskResult>();
 
     this.id = metadata.device_id;
     this.name = metadata.nickname;
@@ -21,22 +23,16 @@ export class Lock {
   }
 
   async getStatus(): Promise<LockStatus> {
-    let status = await this.statusMutex.wait(() => this.client.getStatus(this.id));
-    this.status = status;
+    this.status = await this.statusMutex.wait(() => this.client.getStatus(this.id));
 
-    return status;
+    return this.status;
+  }
+
+  async syncStatus(): Promise<void> {
+    await this.syncMutex.wait(() => this.client.sync(this.id));
   }
 
   async setLockedState(locked: boolean): Promise<void> {
-    let result = await this.client.control(this.id, locked);
-    let action = locked ? 'lock' : 'unlock';
-
-    if (result == null) {
-      throw Error(`Took too long to ${action}, please try again.`);
-    }
-
-    if (!result.successful) {
-      throw Error(`Unable to ${action}, got error ${result.error}`);
-    }
+    await this.client.control(this.id, locked);
   }
 }

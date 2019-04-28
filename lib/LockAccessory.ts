@@ -1,7 +1,7 @@
-import { Lock } from './Lock';
 import { HAP } from './HAP';
-import { Logger } from './Logger';
 import { Accessory, Service } from './interfaces/HAP';
+import { Lock } from './Lock';
+import { Logger } from './Logger';
 
 export class LockAccessory {
   lock: Lock;
@@ -48,11 +48,11 @@ export class LockAccessory {
 
     lockMechanismService
       .getCharacteristic(HAP.Characteristic.LockCurrentState)
-      .on('get', this.getLockState.bind(this));
+      .on('get', this.getCurrentLockState.bind(this));
 
     lockMechanismService
       .getCharacteristic(HAP.Characteristic.LockTargetState)
-      .on('get', this.getLockState.bind(this))
+      .on('get', this.getTargetLockState.bind(this))
       .on('set', this.setLockState.bind(this));
   }
 
@@ -72,13 +72,35 @@ export class LockAccessory {
       .on('get', this.getLowBatteryStatus.bind(this));
   }
 
-  async getLockState(callback): Promise<void> {
+  async getCurrentLockState(callback): Promise<void> {
     try {
       let status = await this.lock.getStatus();
 
       if (!status.responsive) {
-        throw new Error(`${this.lock.name} is unresponsive according to the API, check WiFi connectivity.`);
+        Logger.log(`${this.lock.name} is unresponsive, forcing a status sync...`);
+
+        await this.lock.syncStatus();
+        status = await this.lock.getStatus();
+
+        if (!status.responsive) {
+          throw new Error(`${this.lock.status} is still unresponsive. Check WiFi connectivity.`);
+        }
       }
+
+      if (status.locked) {
+        callback(null, HAP.Characteristic.LockCurrentState.SECURED);
+      } else {
+        callback(null, HAP.Characteristic.LockCurrentState.UNSECURED);
+      }
+    } catch(e) {
+      Logger.error('Unable to get lock state', e);
+      callback(e);
+    }
+  }
+
+  async getTargetLockState(callback): Promise<void> {
+    try {
+      let status = await this.lock.getStatus();
 
       if (status.locked) {
         callback(null, HAP.Characteristic.LockCurrentState.SECURED);

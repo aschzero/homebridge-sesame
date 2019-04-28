@@ -51,30 +51,43 @@ export class Client {
     return result;
   }
 
-  private async getTaskStatus(taskId: string): Promise<TaskResult> {
+  private async getTaskStatus(task_id: string): Promise<TaskResult> {
     let payload = this.buildPayload('action-result');
-    payload.qs = {task_id: taskId}
+    payload.qs = {task_id: task_id}
 
     let status = await request.get(payload);
 
     return status;
   }
 
-  private async waitForTask(taskId: string): Promise<TaskResult> {
+  private async waitForTask(task_id: string): Promise<TaskResult> {
     let retries = Config.MAX_RETRIES;
+    let result: TaskResult;
 
     while (retries-- > 0) {
-      Logger.debug(`Waiting for control task to complete. Attempts remaining: ${retries}/${Config.MAX_RETRIES}`);
+      if (retries == 0) {
+        throw Error('Control task took too long to complete.');
+      }
+
+      Logger.debug(`Waiting for task to complete. Attempts remaining: ${retries}/${Config.MAX_RETRIES}`);
 
       await this.delay(Config.DELAY);
 
-      let task = await this.getTaskStatus(taskId);
-      Logger.debug('Task response', task);
+      result = await this.getTaskStatus(task_id);
+      Logger.debug('Task response', result);
 
-      return task;
+      if (result.status == "processing") {
+        continue;
+      }
+
+      if (result.status == "terminated" && result.successful) {
+        break;
+      } else {
+        throw Error(`Task failed, got error ${result.error}`);
+      }
     }
 
-    return null;
+    return result;
   }
 
   private buildPayload(path: string): Payload {
