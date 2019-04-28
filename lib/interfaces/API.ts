@@ -6,13 +6,13 @@ export interface Payload {
   body?: any;
 }
 
-export interface Metadata {
+export interface LockMetadata {
   device_id: string;
   serial: string;
   nickname: string;
 }
 
-export interface Status {
+export interface LockStatus {
   locked: boolean;
   responsive: boolean;
   battery: number;
@@ -22,8 +22,9 @@ export interface Control {
   task_id: string;
 }
 
-export interface Task {
+export interface TaskResult {
   task_id: string;
   status: string;
   successful: boolean;
+  error: string;
 }

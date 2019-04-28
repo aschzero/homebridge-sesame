@@ -1,4 +1,3 @@
-import { Client } from './Client';
 import { Lock } from './Lock';
 import { HAP } from './HAP';
 import { Logger } from './Logger';
@@ -7,14 +6,12 @@ import { Accessory, Service } from './interfaces/HAP';
 export class LockAccessory {
   lock: Lock;
   accessory: Accessory;
-  client: Client;
 
-  constructor() {
-    this.client = new Client();
+  constructor(lock: Lock) {
+    this.lock = lock;
   }
 
-  register(accessory: Accessory, lock: Lock) {
-    this.lock = lock;
+  registerAccessory(accessory: Accessory) {
     this.accessory = accessory;
 
     this.accessory.getService(HAP.Service.AccessoryInformation)
@@ -77,11 +74,9 @@ export class LockAccessory {
 
   async getLockState(callback): Promise<void> {
     try {
-      let status = await this.client.getStatus(this.lock.id);
+      let status = await this.lock.getStatus();
 
-      this.lock.setStatus(status);
-
-      if (!this.lock.responsive) {
+      if (!status.responsive) {
         throw new Error(`${this.lock.name} is unresponsive according to the API, check WiFi connectivity.`);
       }
 
@@ -102,7 +97,7 @@ export class LockAccessory {
     Logger.log(`${this.lock.name} is ${targetState ? 'locking' : 'unlocking'}...`);
 
     try {
-      await this.client.control(this.lock.id, targetState);
+      await this.lock.setLockedState(targetState);
 
       Logger.log(`${this.lock.name} is ${targetState ? 'locked' : 'unlocked'}`);
 
@@ -116,20 +111,24 @@ export class LockAccessory {
     }
   }
 
-  getBatteryLevel(callback): void {
-    callback(null, this.lock.battery);
+  async getBatteryLevel(callback): Promise<void> {
+    let status = await this.lock.getStatus();
+
+    callback(null, status.battery);
   }
 
-  getBatteryChargingState(callback): void {
-    callback(null, HAP.Characteristic.ChargingState.NOT_CHARGING);
-  }
+  async getLowBatteryStatus(callback): Promise<void> {
+    let status = await this.lock.getStatus();
 
-  getLowBatteryStatus(callback): void {
-    if (this.lock.battery <= 20) {
+    if (status.battery <= 20) {
       callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
     } else {
       callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
     }
+  }
+
+  getBatteryChargingState(callback): void {
+    callback(null, HAP.Characteristic.ChargingState.NOT_CHARGING);
   }
 }
 

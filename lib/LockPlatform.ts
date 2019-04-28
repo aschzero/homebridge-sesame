@@ -58,8 +58,8 @@ export class LockPlatform {
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
     }
 
-    let lockAccessory = new LockAccessory();
-    lockAccessory.register(accessory, lock);
+    let lockAccessory = new LockAccessory(lock);
+    lockAccessory.registerAccessory(accessory);
 
     Logger.log(`Found ${lock.name}`);
 

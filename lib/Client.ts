@@ -1,10 +1,10 @@
 import * as request from 'request-promise';
 import * as store from 'store';
-
 import { Config } from './Config';
-import { Control, Metadata, Payload, Status, Task } from './interfaces/API';
+import { LockMetadata, LockStatus, Payload, TaskResult } from './interfaces/API';
 import { Lock } from './Lock';
 import { Logger } from './Logger';
+
 
 export class Client {
   token: string;
@@ -15,14 +15,14 @@ export class Client {
 
   async listLocks(): Promise<Lock[]> {
     let payload = this.buildPayload('sesames');
-    let response: Metadata[] = await request.get(payload);
+    let response: LockMetadata[] = await request.get(payload);
 
     Logger.debug('Got listLocks response', response);
 
-    return response.map(r => Lock.buildFromMetadata(r));
+    return response.map(r => new Lock(r));
   }
 
-  async getStatus(id: string): Promise<Status> {
+  async getStatus(id: string): Promise<LockStatus> {
     let payload = this.buildPayload(`sesame/${id}`);
     let status = await request.get(payload);
 
@@ -31,16 +31,27 @@ export class Client {
     return status;
   }
 
-  async control(id: string, secure: boolean): Promise<void> {
+  async control(id: string, secure: boolean): Promise<TaskResult> {
     let payload = this.buildPayload(`sesame/${id}`);
     payload.body = {command: (secure ? 'lock' : 'unlock')}
 
-    let response: Control = await request.post(payload);
+    let response = await request.post(payload);
+    let result = await this.waitForTask(response.task_id);
 
-    await this.waitForControlTask(response.task_id);
+    return result;
   }
 
-  private async getTaskStatus(taskId: string): Promise<Task> {
+  async sync(id: string): Promise<TaskResult> {
+    let payload = this.buildPayload(`sesame/${id}`);
+    payload.body = {command: 'sync'}
+
+    let response = await request.post(payload);
+    let result = await this.waitForTask(response.task_id);
+
+    return result;
+  }
+
+  private async getTaskStatus(taskId: string): Promise<TaskResult> {
     let payload = this.buildPayload('action-result');
     payload.qs = {task_id: taskId}
 
@@ -49,7 +60,7 @@ export class Client {
     return status;
   }
 
-  private async waitForControlTask(taskId: string): Promise<void> {
+  private async waitForTask(taskId: string): Promise<TaskResult> {
     let retries = Config.MAX_RETRIES;
 
     while (retries-- > 0) {
@@ -57,17 +68,13 @@ export class Client {
 
       await this.delay(Config.DELAY);
 
-      if (retries == 0) {
-        throw Error('Control task took too long to complete.');
-      }
+      let task = await this.getTaskStatus(taskId);
+      Logger.debug('Task response', task);
 
-      let status = await this.getTaskStatus(taskId);
-      Logger.debug('Task response', status);
-
-      if (status.successful) break;
+      return task;
     }
 
-    return;
+    return null;
   }
 
   private buildPayload(path: string): Payload {
