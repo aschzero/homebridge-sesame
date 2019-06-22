@@ -21,7 +21,7 @@ export class LockPlatform {
 
     this.platform.on('didFinishLaunching', () => {
       if (!config.token) {
-        throw Error('A token was not found in the homebridge config. For more information, see: https://github.com/aschzero/homebridge-sesame#configuration');
+        throw new Error('A token was not found in the homebridge config. For more information, see: https://github.com/aschzero/homebridge-sesame#configuration');
       }
 
       store.set('token', config.token);

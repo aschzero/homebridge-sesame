@@ -23,9 +23,12 @@ export class Lock {
   }
 
   async getStatus(): Promise<LockStatus> {
-    this.status = await this.statusMutex.wait(() => this.client.getStatus(this.id));
-
-    return this.status;
+    try {
+      this.status = await this.statusMutex.wait(() => this.client.getStatus(this.id));
+      return this.status;
+    } catch(e) {
+      throw e;
+    }
   }
 
   async syncStatus(): Promise<void> {

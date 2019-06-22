@@ -1,7 +1,7 @@
 import * as request from 'request-promise';
 import * as store from 'store';
 import { Config } from './Config';
-import { LockMetadata, LockStatus, Payload, TaskResult } from './interfaces/API';
+import { LockMetadata, LockStatus, TaskResult } from './interfaces/API';
 import { Lock } from './Lock';
 import { Logger } from './Logger';
 
@@ -14,17 +14,20 @@ export class Client {
   }
 
   async listLocks(): Promise<Lock[]> {
-    let payload = this.buildPayload('sesames');
-    let response: LockMetadata[] = await request.get(payload);
+    let options = this.buildRequestOptions('sesames');
+    let response = await request.get(options);
 
     Logger.debug('Got listLocks response', response);
 
-    return response.map(r => new Lock(r));
+    let locks = response as LockMetadata[];
+
+    return locks.map(lock => new Lock(lock));
   }
 
   async getStatus(id: string): Promise<LockStatus> {
-    let payload = this.buildPayload(`sesame/${id}`);
-    let status = await request.get(payload);
+    let options = this.buildRequestOptions(`sesame/${id}`);
+
+    let status = await request.get(options);
 
     Logger.debug('Got status response', status);
 
@@ -32,30 +35,30 @@ export class Client {
   }
 
   async control(id: string, secure: boolean): Promise<TaskResult> {
-    let payload = this.buildPayload(`sesame/${id}`);
-    payload.body = {command: (secure ? 'lock' : 'unlock')}
+    let options = this.buildRequestOptions(`sesame/${id}`);
+    options.body = {command: (secure ? 'lock' : 'unlock')}
 
-    let response = await request.post(payload);
+    let response = await request.post(options);
     let result = await this.waitForTask(response.task_id);
 
     return result;
   }
 
   async sync(id: string): Promise<TaskResult> {
-    let payload = this.buildPayload(`sesame/${id}`);
-    payload.body = {command: 'sync'}
+    let options = this.buildRequestOptions(`sesame/${id}`);
+    options.body = {command: 'sync'}
 
-    let response = await request.post(payload);
+    let response = await request.post(options);
     let result = await this.waitForTask(response.task_id);
 
     return result;
   }
 
   private async getTaskStatus(task_id: string): Promise<TaskResult> {
-    let payload = this.buildPayload('action-result');
-    payload.qs = {task_id: task_id}
+    let options = this.buildRequestOptions('action-result');
+    options.qs = {task_id: task_id}
 
-    let status = await request.get(payload);
+    let status = await request.get(options);
 
     return status;
   }
@@ -66,7 +69,7 @@ export class Client {
 
     while (retries-- > 0) {
       if (retries == 0) {
-        throw Error('Control task took too long to complete.');
+        throw new Error('Control task took too long to complete.');
       }
 
       Logger.debug(`Waiting for task to complete. Attempts remaining: ${retries}/${Config.MAX_RETRIES}`);
@@ -83,24 +86,32 @@ export class Client {
       if (result.status == "terminated" && result.successful) {
         break;
       } else {
-        throw Error(`Task failed, got error ${result.error}`);
+        throw new Error(`Task failed, got error ${result.error}`);
       }
     }
 
     return result;
   }
 
-  private buildPayload(path: string): Payload {
-    let payload: Payload = {
+  private buildRequestOptions(path: string, fake?: any): request.Options {
+    let options: request.Options = {
       uri: `${Config.API_URI}/${path}`,
       json: true,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': this.token
+      },
+      transform: (body, response) => {
+        if (fake) body = fake;
+        if (response.statusCode != 200 || body.hasOwnProperty('errorMessage')) {
+          throw new Error(`Bad API response (code ${response.statusCode}):\n${JSON.stringify(body)}`);
+        }
+
+        return body;
       }
     }
 
-    return payload;
+    return options;
   }
 
   private async delay(ms: number) {

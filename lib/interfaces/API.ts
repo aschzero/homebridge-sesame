@@ -1,11 +1,3 @@
-export interface Payload {
-  uri: string;
-  json: boolean;
-  headers: any;
-  qs?: any;
-  body?: any;
-}
-
 export interface LockMetadata {
   device_id: string;
   serial: string;
