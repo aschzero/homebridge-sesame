@@ -134,18 +134,25 @@ export class LockAccessory {
   }
 
   async getBatteryLevel(callback): Promise<void> {
-    let status = await this.lock.getStatus();
-
-    callback(null, status.battery);
+    try {
+      let status = await this.lock.getStatus();
+      callback(null, status.battery);
+    } catch(e) {
+      callback(e);
+    }
   }
 
   async getLowBatteryStatus(callback): Promise<void> {
-    let status = await this.lock.getStatus();
+    try {
+      let status = await this.lock.getStatus();
 
-    if (status.battery <= 20) {
-      callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
-    } else {
-      callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
+      if (status.battery <= 20) {
+        callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
+      } else {
+        callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
+      }
+    } catch(e) {
+      callback(e);
     }
   }
 
