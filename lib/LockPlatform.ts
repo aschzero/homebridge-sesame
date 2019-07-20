@@ -49,8 +49,6 @@ export class LockPlatform {
     let uuid = HAP.UUID.generate(lock.id);
     let accessory = this.accessories.get(uuid);
 
-    this.removeStaleAccessory(lock);
-
     if (!accessory) {
       accessory = new HAP.Accessory(lock.name, uuid);
       this.accessories.set(accessory.UUID, accessory);
@@ -64,18 +62,5 @@ export class LockPlatform {
     Logger.log(`Found ${lock.name}`);
 
     return accessory;
-  }
-
-  // As of v2.0.1, accessory UUIDs are generated using the lock ID instead of the name.
-  // This is a temporary addition to enable a seamless upgrade from v2.0.0 to v2.0.1
-  // and avoids duplicate accessories from being created.
-  removeStaleAccessory(lock: Lock): void {
-    let oldUuid = HAP.UUID.generate(lock.name);
-    let oldAccessory = this.accessories.get(oldUuid);
-
-    if (oldAccessory) {
-      this.platform.unregisterPlatformAccessories('homebridge-sesame', 'Sesame', [oldAccessory]);
-      Logger.debug(`Removed stale accessory ${lock.name}`);
-    }
   }
 }
