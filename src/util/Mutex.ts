@@ -1,4 +1,4 @@
-import { Deferred } from "./Deferred";
+import { Deferred } from 'ts-deferred';
 
 export class Mutex<T> {
   private deferred: Deferred<T>;
@@ -12,7 +12,7 @@ export class Mutex<T> {
   async wait(task: () => Promise<T>): Promise<T> {
     if (this.locked) {
       let result = await this.deferred;
-      return result;
+      return result.promise;
     }
 
     this.locked = true;

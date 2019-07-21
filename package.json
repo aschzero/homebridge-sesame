@@ -8,7 +8,8 @@
 	"dependencies": {
 		"request": "^2.88.0",
 		"request-promise": "^4.2.4",
-		"store": "^2.0.12"
+		"store": "^2.0.12",
+		"ts-deferred": "^1.0.4"
 	},
 	"devDependencies": {
 		"@types/request": "^2.48.2",
