@@ -1,5 +1,5 @@
-import { LockPlatform } from './lib/LockPlatform';
-import { HAP } from './lib/HAP';
+import { LockPlatform } from './src/LockPlatform';
+import { HAP } from './src/HAP';
 
 export = (homebridge) => {
   HAP.Accessory = homebridge.platformAccessory;

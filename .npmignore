@@ -1,5 +1,5 @@
 index.ts
-lib/**/*.ts
+src/**/*.ts
 tsconfig.json
 .homebridge
 .vscode
