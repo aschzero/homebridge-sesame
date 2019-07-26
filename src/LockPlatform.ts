@@ -3,7 +3,7 @@ import { Client } from './Client';
 import { HAP } from './HAP';
 import { Lock } from './interfaces/API';
 import { Accessory, Log, Platform } from './interfaces/HAP';
-import { PlatformConfig } from './interfaces/PlatformConfig';
+import { Config } from './interfaces/Config';
 import { LockAccessory } from "./LockAccessory";
 import { Logger } from './Logger';
 import { Server } from './Server';
@@ -14,7 +14,7 @@ export class LockPlatform {
   accessories: Map<string, Accessory>;
   server: Server;
 
-  constructor(log: Log, config: PlatformConfig, platform: Platform) {
+  constructor(log: Log, config: Config, platform: Platform) {
     Logger.setLogger(log, config.debug);
 
     this.platform = platform;
