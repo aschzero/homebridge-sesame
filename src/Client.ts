@@ -1,11 +1,14 @@
 import * as request from 'request-promise';
 import * as store from 'store';
-import { Config } from './Config';
 import { Lock, LockStatus, TaskResult } from './interfaces/API';
 import { Logger } from './Logger';
 
 export class Client {
   token: string;
+
+  API_URI = 'https://api.candyhouse.co/public'
+  MAX_RETRIES = 20;
+  POLL_DELAY = 1000;
 
   constructor() {
     this.token = store.get('token');
@@ -59,7 +62,7 @@ export class Client {
   }
 
   private async waitForTask(task_id: string): Promise<TaskResult> {
-    let retries = Config.MAX_RETRIES;
+    let retries = this.MAX_RETRIES;
     let result: TaskResult;
 
     while (retries-- > 0) {
@@ -67,9 +70,9 @@ export class Client {
         throw new Error('Control task took too long to complete.');
       }
 
-      Logger.debug(`Waiting for task to complete. Attempts remaining: ${retries}/${Config.MAX_RETRIES}`);
+      Logger.debug(`Waiting for task to complete. Attempts remaining: ${retries}/${this.MAX_RETRIES}`);
 
-      await this.delay(Config.DELAY);
+      await this.delay(this.POLL_DELAY);
 
       result = await this.getTaskStatus(task_id);
       Logger.debug('Task response', result);
@@ -84,7 +87,7 @@ export class Client {
 
   private buildRequestOptions(path: string): request.Options {
     let options: request.Options = {
-      uri: `${Config.API_URI}/${path}`,
+      uri: `${this.API_URI}/${path}`,
       json: true,
       headers: {
         'Content-Type': 'application/json',
