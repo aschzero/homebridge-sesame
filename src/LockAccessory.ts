@@ -122,12 +122,16 @@ export class LockAccessory {
 
     Logger.log(`${this.lock.nickname} is ${targetState ? 'locked' : 'unlocked'}`);
 
+    this.updateCurrentLockState(targetState);
+
+    callback();
+  }
+
+  updateCurrentLockState(locked: boolean) {
     let lockService = this.getOrCreateHAPService(HAP.Service.LockMechanism);
 
     lockService.getCharacteristic(HAP.Characteristic.LockCurrentState)
-                .updateValue(targetState);
-
-    callback();
+                .updateValue(locked);
   }
 
   async getBatteryLevel(callback: Function): Promise<void> {

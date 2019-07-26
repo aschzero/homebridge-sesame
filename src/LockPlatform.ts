@@ -1,23 +1,25 @@
 import * as store from 'store';
-
 import { Client } from './Client';
 import { HAP } from './HAP';
+import { Lock } from './interfaces/API';
 import { Accessory, Log, Platform } from './interfaces/HAP';
 import { PlatformConfig } from './interfaces/PlatformConfig';
+import { LockAccessory } from "./LockAccessory";
 import { Logger } from './Logger';
-import {LockAccessory} from "./LockAccessory";
-import { Lock } from './interfaces/API';
+import { Server } from './Server';
 
 export class LockPlatform {
   log: Log;
   platform: Platform;
   accessories: Map<string, Accessory>;
+  server: Server;
 
   constructor(log: Log, config: PlatformConfig, platform: Platform) {
-    Logger.setLogger(log, config['debug']);
+    Logger.setLogger(log, config.debug);
 
     this.platform = platform;
     this.accessories = new Map<string, Accessory>();
+    this.server = new Server(config.port);
 
     this.platform.on('didFinishLaunching', () => {
       if (!config.token) {
@@ -27,6 +29,8 @@ export class LockPlatform {
       store.set('token', config.token);
 
       this.retrieveLocks();
+
+      this.server.listen();
     });
   }
 
@@ -53,12 +57,11 @@ export class LockPlatform {
 
     if (!accessory) {
       accessory = new HAP.Accessory(lock.nickname, uuid);
-      this.accessories.set(accessory.UUID, accessory);
-
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
     }
 
-    new LockAccessory(lock, accessory);
+    let lockAccessory = new LockAccessory(lock, accessory);
+    this.server.locks.set(lock.device_id, lockAccessory);
 
     Logger.log(`Found ${lock.nickname}`);
 
