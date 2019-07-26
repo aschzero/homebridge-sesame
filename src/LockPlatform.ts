@@ -5,8 +5,8 @@ import { HAP } from './HAP';
 import { Accessory, Log, Platform } from './interfaces/HAP';
 import { PlatformConfig } from './interfaces/PlatformConfig';
 import { Lock } from './Lock';
-import { LockAccessory } from './LockAccessory';
 import { Logger } from './Logger';
+import {LockAccessory} from "./LockAccessory";
 
 export class LockPlatform {
   log: Log;
@@ -31,14 +31,16 @@ export class LockPlatform {
   }
 
   async retrieveLocks(): Promise<void> {
-    try {
-      let client = new Client();
-      let locks = await client.listLocks();
+    let client = new Client();
+    let locks: Lock[];
 
-      locks.forEach(lock => this.addAccessory(lock));
+    try {
+      locks = await client.listLocks();
     } catch(e) {
       Logger.error('Unable to retrieve locks', e);
     }
+
+    locks.forEach(lock => this.addAccessory(lock));
   }
 
   configureAccessory(accessory: Accessory): void {
@@ -56,8 +58,7 @@ export class LockPlatform {
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
     }
 
-    let lockAccessory = new LockAccessory(lock);
-    lockAccessory.registerAccessory(accessory);
+    new LockAccessory(lock, accessory);
 
     Logger.log(`Found ${lock.name}`);
 

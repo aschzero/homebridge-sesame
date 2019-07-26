@@ -1,4 +1,4 @@
-import { Log } from "./interfaces/HAP";
+import { Log } from './interfaces/HAP';
 
 class SesameLogger {
   public  log: Log;
@@ -20,8 +20,14 @@ class SesameLogger {
     this.log(result);
   }
 
-  error(message: string, error: Error) {
-    this.log.error(`${message}. ${error.message}`)
+  error(message: string, error?: Error) {
+    let result = message;
+
+    if (error) {
+      result += `. Error: ${error.message}`;
+    }
+
+    this.log.error(result);
   }
 }
 

@@ -5,7 +5,6 @@ import { LockMetadata, LockStatus, TaskResult } from './interfaces/API';
 import { Lock } from './Lock';
 import { Logger } from './Logger';
 
-
 export class Client {
   token: string;
 
@@ -28,7 +27,6 @@ export class Client {
     let options = this.buildRequestOptions(`sesame/${id}`);
 
     let status = await request.get(options);
-
     Logger.debug('Got status response', status);
 
     return status;
@@ -56,7 +54,7 @@ export class Client {
 
   private async getTaskStatus(task_id: string): Promise<TaskResult> {
     let options = this.buildRequestOptions('action-result');
-    options.qs = {task_id: task_id}
+    options.qs = {task_id: task_id};
 
     let status = await request.get(options);
 
@@ -79,35 +77,21 @@ export class Client {
       result = await this.getTaskStatus(task_id);
       Logger.debug('Task response', result);
 
-      if (result.status == "processing") {
+      if (result.status == 'processing') {
         continue;
       }
 
-      if (result.status == "terminated" && result.successful) {
-        break;
-      } else {
-        throw new Error(`Task failed, got error ${result.error}`);
-      }
+      return result;
     }
-
-    return result;
   }
 
-  private buildRequestOptions(path: string, fake?: any): request.Options {
+  private buildRequestOptions(path: string): request.Options {
     let options: request.Options = {
       uri: `${Config.API_URI}/${path}`,
       json: true,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': this.token
-      },
-      transform: (body, response) => {
-        if (fake) body = fake;
-        if (response.statusCode != 200 || body.hasOwnProperty('errorMessage')) {
-          throw new Error(`Bad API response (code ${response.statusCode}):\n${JSON.stringify(body)}`);
-        }
-
-        return body;
       }
     }
 
