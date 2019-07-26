@@ -1,4 +1,4 @@
-export interface LockMetadata {
+export interface Lock {
   device_id: string;
   serial: string;
   nickname: string;

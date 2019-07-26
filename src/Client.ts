@@ -1,8 +1,7 @@
 import * as request from 'request-promise';
 import * as store from 'store';
 import { Config } from './Config';
-import { LockMetadata, LockStatus, TaskResult } from './interfaces/API';
-import { Lock } from './Lock';
+import { Lock, LockStatus, TaskResult } from './interfaces/API';
 import { Logger } from './Logger';
 
 export class Client {
@@ -18,9 +17,7 @@ export class Client {
 
     Logger.debug('Got listLocks response', response);
 
-    let locks = response as LockMetadata[];
-
-    return locks.map(lock => new Lock(lock));
+    return response;
   }
 
   async getStatus(id: string): Promise<LockStatus> {

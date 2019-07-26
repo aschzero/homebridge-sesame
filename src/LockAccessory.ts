@@ -1,7 +1,6 @@
 import { HAP } from "./HAP";
-import { LockStatus } from "./interfaces/API";
+import { LockStatus, Lock } from "./interfaces/API";
 import { Accessory, Service } from "./interfaces/HAP";
-import { Lock } from "./Lock";
 import { Logger } from "./Logger";
 import { Client } from "./Client";
 import { Mutex } from "./util/Mutex";
@@ -33,7 +32,7 @@ export class LockAccessory {
     let hapService = this.accessory.getService(service);
 
     if (!hapService) {
-      hapService = this.accessory.addService(service, this.lock.name);
+      hapService = this.accessory.addService(service, this.lock.nickname);
     }
 
     return hapService;
@@ -67,22 +66,22 @@ export class LockAccessory {
     let status: LockStatus;
 
     try {
-      status = await this.mutex.wait(() => this.client.getStatus(this.lock.id));
+      status = await this.mutex.wait(() => this.client.getStatus(this.lock.device_id));
     } catch(e) {
       Logger.error('Unable to get lock state', e);
       callback(e);
     }
 
     if (!status.responsive) {
-      Logger.log(`${this.lock.name} is unresponsive, forcing a status sync...`);
+      Logger.log(`${this.lock.nickname} is unresponsive, forcing a status sync...`);
 
       try {
-        let result = await this.client.sync(this.lock.id);
+        let result = await this.client.sync(this.lock.device_id);
 
         if (result.successful) {
-          Logger.log(`${this.lock.name} sync successful.`)
+          Logger.log(`${this.lock.nickname} sync successful.`)
         } else {
-          Logger.error(`${this.lock.name} failed to sync, please check WiFi connectivity. API responded with: ${result.error}`);
+          Logger.error(`${this.lock.nickname} failed to sync, please check WiFi connectivity. API responded with: ${result.error}`);
         }
       } catch(e) {
         Logger.error(`Unable to sync`, e);
@@ -98,7 +97,7 @@ export class LockAccessory {
 
   async getTargetLockState(callback: Function): Promise<void> {
     try {
-      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.id));
+      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.device_id));
 
       if (status.locked) {
         callback(null, HAP.Characteristic.LockCurrentState.SECURED);
@@ -112,16 +111,16 @@ export class LockAccessory {
   }
 
   async setLockState(targetState: boolean, callback: Function): Promise<void> {
-    Logger.log(`${this.lock.name} is ${targetState ? 'locking' : 'unlocking'}...`);
+    Logger.log(`${this.lock.nickname} is ${targetState ? 'locking' : 'unlocking'}...`);
 
     try {
-      await this.client.control(this.lock.id, targetState);
+      await this.client.control(this.lock.device_id, targetState);
     } catch(e) {
       Logger.error('Unable to set lock state', e);
       callback(e);
     }
 
-    Logger.log(`${this.lock.name} is ${targetState ? 'locked' : 'unlocked'}`);
+    Logger.log(`${this.lock.nickname} is ${targetState ? 'locked' : 'unlocked'}`);
 
     let lockService = this.getOrCreateHAPService(HAP.Service.LockMechanism);
 
@@ -133,7 +132,7 @@ export class LockAccessory {
 
   async getBatteryLevel(callback: Function): Promise<void> {
     try {
-      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.id));
+      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.device_id));
 
       callback(null, status.battery);
     } catch(e) {
@@ -143,7 +142,7 @@ export class LockAccessory {
 
   async getLowBatteryStatus(callback: Function): Promise<void> {
     try {
-      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.id));
+      let status = await this.mutex.wait(() => this.client.getStatus(this.lock.device_id));
 
       if (status.battery <= 20) {
         callback(null, HAP.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);

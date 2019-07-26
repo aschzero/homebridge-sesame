@@ -4,9 +4,9 @@ import { Client } from './Client';
 import { HAP } from './HAP';
 import { Accessory, Log, Platform } from './interfaces/HAP';
 import { PlatformConfig } from './interfaces/PlatformConfig';
-import { Lock } from './Lock';
 import { Logger } from './Logger';
 import {LockAccessory} from "./LockAccessory";
+import { Lock } from './interfaces/API';
 
 export class LockPlatform {
   log: Log;
@@ -48,11 +48,11 @@ export class LockPlatform {
   }
 
   addAccessory(lock: Lock): Accessory {
-    let uuid = HAP.UUID.generate(lock.id);
+    let uuid = HAP.UUID.generate(lock.device_id);
     let accessory = this.accessories.get(uuid);
 
     if (!accessory) {
-      accessory = new HAP.Accessory(lock.name, uuid);
+      accessory = new HAP.Accessory(lock.nickname, uuid);
       this.accessories.set(accessory.UUID, accessory);
 
       this.platform.registerPlatformAccessories('homebridge-sesame', 'Sesame', [accessory]);
@@ -60,7 +60,7 @@ export class LockPlatform {
 
     new LockAccessory(lock, accessory);
 
-    Logger.log(`Found ${lock.name}`);
+    Logger.log(`Found ${lock.nickname}`);
 
     return accessory;
   }
